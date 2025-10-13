@@ -17,7 +17,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-model = "gpt-4o"
+model = "gpt-5-nano"
 
 
 # Define validation models
@@ -71,7 +71,6 @@ async def check_security(user_input: str) -> SecurityCheck:
 
 # Main validation function
 
-
 async def validate_request(user_input: str) -> bool:
     """Run validation checks in parallel"""
     calendar_check, security_check = await asyncio.gather(
@@ -94,7 +93,6 @@ async def validate_request(user_input: str) -> bool:
     return is_valid
 
 # Run valid example
-
 
 async def run_valid_example():
     # Test valid request

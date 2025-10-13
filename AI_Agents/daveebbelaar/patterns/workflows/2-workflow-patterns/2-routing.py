@@ -178,7 +178,7 @@ modify_event_input = (
 )
 result = process_calendar_request(modify_event_input)
 if result:
-    print(f"Response: {result.message}")
+    print(f"Response: {result.model_dump()}")
 
 # Test with invalid request
 
