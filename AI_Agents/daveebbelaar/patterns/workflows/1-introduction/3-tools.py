@@ -10,10 +10,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 docs: https://platform.openai.com/docs/guides/function-calling
 """
 
-# --------------------------------------------------------------
 # Define the tool (function) that we want to call
-# --------------------------------------------------------------
-
 
 def get_weather(latitude, longitude):
     """This is a publically available API that returns the weather for a given location."""
@@ -24,9 +21,7 @@ def get_weather(latitude, longitude):
     return data["current"]
 
 
-# --------------------------------------------------------------
-# Step 1: Call model with get_weather tool defined
-# --------------------------------------------------------------
+# Call model with get_weather tool defined
 
 tools = [
     {
@@ -59,16 +54,12 @@ completion = client.chat.completions.create(
     tools=tools,
 )
 
-# --------------------------------------------------------------
-# Step 2: Model decides to call function(s)
-# --------------------------------------------------------------
+
+# Convert completion to a python dictionary
 
 completion.model_dump()
 
-# --------------------------------------------------------------
-# Step 3: Execute get_weather function
-# --------------------------------------------------------------
-
+# Execute get_weather function
 
 def call_function(name, args):
     if name == "get_weather":
@@ -85,10 +76,7 @@ for tool_call in completion.choices[0].message.tool_calls:
         {"role": "tool", "tool_call_id": tool_call.id, "content": json.dumps(result)}
     )
 
-# --------------------------------------------------------------
 # Step 4: Supply result and call model again
-# --------------------------------------------------------------
-
 
 class WeatherResponse(BaseModel):
     temperature: float = Field(
@@ -106,9 +94,7 @@ completion_2 = client.beta.chat.completions.parse(
     response_format=WeatherResponse,
 )
 
-# --------------------------------------------------------------
-# Step 5: Check model response
-# --------------------------------------------------------------
+# Check model response
 
 final_response = completion_2.choices[0].message.parsed
 print(final_response.temperature)

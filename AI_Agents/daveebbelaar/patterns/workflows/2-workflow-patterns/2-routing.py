@@ -13,12 +13,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-model = "gpt-4o"
+model = "gpt-5-nano"
 
-# --------------------------------------------------------------
-# Step 1: Define the data models for routing and responses
-# --------------------------------------------------------------
-
+# Define the data models for routing and responses
 
 class CalendarRequestType(BaseModel):
     """Router LLM call: Determine the type of calendar request"""
@@ -65,10 +62,7 @@ class CalendarResponse(BaseModel):
     calendar_link: Optional[str] = Field(description="Calendar link if applicable")
 
 
-# --------------------------------------------------------------
-# Step 2: Define the routing and processing functions
-# --------------------------------------------------------------
-
+# Define the routing and processing functions
 
 def route_calendar_request(user_input: str) -> CalendarRequestType:
     """Router LLM call to determine the type of calendar request"""
@@ -170,18 +164,14 @@ def process_calendar_request(user_input: str) -> Optional[CalendarResponse]:
         return None
 
 
-# --------------------------------------------------------------
-# Step 3: Test with new event
-# --------------------------------------------------------------
+# Test with new event
 
 new_event_input = "Let's schedule a team meeting next Tuesday at 2pm with Alice and Bob"
 result = process_calendar_request(new_event_input)
 if result:
     print(f"Response: {result.message}")
 
-# --------------------------------------------------------------
-# Step 4: Test with modify event
-# --------------------------------------------------------------
+# Test with modify event
 
 modify_event_input = (
     "Can you move the team meeting with Alice and Bob to Wednesday at 3pm instead?"
@@ -190,9 +180,7 @@ result = process_calendar_request(modify_event_input)
 if result:
     print(f"Response: {result.message}")
 
-# --------------------------------------------------------------
-# Step 5: Test with invalid request
-# --------------------------------------------------------------
+# Test with invalid request
 
 invalid_input = "What's the weather like today?"
 result = process_calendar_request(invalid_input)

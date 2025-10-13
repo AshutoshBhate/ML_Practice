@@ -14,12 +14,9 @@ logger = logging.getLogger(__name__)
 
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-model = "gpt-4o-mini"
+model = "gpt-5-nano"
 
-# --------------------------------------------------------------
-# Step 1: Define the data models
-# --------------------------------------------------------------
-
+# Define Data Models
 
 class SubTask(BaseModel):
     """Blog section task defined by orchestrator"""
@@ -62,9 +59,7 @@ class ReviewFeedback(BaseModel):
     final_version: str = Field(description="Complete, polished blog post")
 
 
-# --------------------------------------------------------------
-# Step 2: Define prompts
-# --------------------------------------------------------------
+# Define Prompts
 
 ORCHESTRATOR_PROMPT = """
 Analyze this blog topic and break it down into logical sections.
@@ -125,10 +120,7 @@ For suggested edits, focus on improving transitions and maintaining consistent t
 The final version should incorporate your suggested improvements into a polished, cohesive blog post.
 """
 
-# --------------------------------------------------------------
-# Step 3: Implement orchestrator
-# --------------------------------------------------------------
-
+#Implement Orchestrator
 
 class BlogOrchestrator:
     def __init__(self):
@@ -238,9 +230,7 @@ class BlogOrchestrator:
         return {"structure": plan, "sections": self.sections_content, "review": review}
 
 
-# --------------------------------------------------------------
-# Step 4: Example usage
-# --------------------------------------------------------------
+#Example Usage
 
 if __name__ == "__main__":
     orchestrator = BlogOrchestrator()

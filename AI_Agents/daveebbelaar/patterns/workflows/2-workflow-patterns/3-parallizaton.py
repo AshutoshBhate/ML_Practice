@@ -19,10 +19,8 @@ logger = logging.getLogger(__name__)
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 model = "gpt-4o"
 
-# --------------------------------------------------------------
-# Step 1: Define validation models
-# --------------------------------------------------------------
 
+# Define validation models
 
 class CalendarValidation(BaseModel):
     """Check if input is a valid calendar request"""
@@ -38,10 +36,7 @@ class SecurityCheck(BaseModel):
     risk_flags: list[str] = Field(description="List of potential security concerns")
 
 
-# --------------------------------------------------------------
-# Step 2: Define parallel validation tasks
-# --------------------------------------------------------------
-
+# Define parallel validation tasks
 
 async def validate_calendar_request(user_input: str) -> CalendarValidation:
     """Check if the input is a valid calendar request"""
@@ -74,10 +69,7 @@ async def check_security(user_input: str) -> SecurityCheck:
     )
     return completion.choices[0].message.parsed
 
-
-# --------------------------------------------------------------
-# Step 3: Main validation function
-# --------------------------------------------------------------
+# Main validation function
 
 
 async def validate_request(user_input: str) -> bool:
@@ -101,10 +93,7 @@ async def validate_request(user_input: str) -> bool:
 
     return is_valid
 
-
-# --------------------------------------------------------------
-# Step 4: Run valid example
-# --------------------------------------------------------------
+# Run valid example
 
 
 async def run_valid_example():
@@ -116,10 +105,7 @@ async def run_valid_example():
 
 asyncio.run(run_valid_example())
 
-# --------------------------------------------------------------
-# Step 5: Run suspicious example
-# --------------------------------------------------------------
-
+# Run suspicious example
 
 async def run_suspicious_example():
     # Test potential injection

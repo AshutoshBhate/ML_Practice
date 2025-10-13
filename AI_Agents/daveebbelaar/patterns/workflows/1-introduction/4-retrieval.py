@@ -9,10 +9,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 docs: https://platform.openai.com/docs/guides/function-calling
 """
 
-# --------------------------------------------------------------
 # Define the knowledge base retrieval tool
-# --------------------------------------------------------------
-
 
 def search_kb(question: str):
     """
@@ -23,9 +20,7 @@ def search_kb(question: str):
         return json.load(f)
 
 
-# --------------------------------------------------------------
-# Step 1: Call model with search_kb tool defined
-# --------------------------------------------------------------
+# Call model with search_kb tool defined
 
 tools = [
     {
@@ -57,16 +52,11 @@ completion = client.chat.completions.create(
     tools=tools,
 )
 
-# --------------------------------------------------------------
-# Step 2: Model decides to call function(s)
-# --------------------------------------------------------------
+# Model decides to call function(s)
 
 completion.model_dump()
 
-# --------------------------------------------------------------
-# Step 3: Execute search_kb function
-# --------------------------------------------------------------
-
+# Execute search_kb function
 
 def call_function(name, args):
     if name == "search_kb":
@@ -83,10 +73,7 @@ for tool_call in completion.choices[0].message.tool_calls:
         {"role": "tool", "tool_call_id": tool_call.id, "content": json.dumps(result)}
     )
 
-# --------------------------------------------------------------
-# Step 4: Supply result and call model again
-# --------------------------------------------------------------
-
+# Supply result and call model again
 
 class KBResponse(BaseModel):
     answer: str = Field(description="The answer to the user's question.")
@@ -100,17 +87,13 @@ completion_2 = client.beta.chat.completions.parse(
     response_format=KBResponse,
 )
 
-# --------------------------------------------------------------
-# Step 5: Check model response
-# --------------------------------------------------------------
+# Check model response
 
 final_response = completion_2.choices[0].message.parsed
 final_response.answer
 final_response.source
 
-# --------------------------------------------------------------
 # Question that doesn't trigger the tool
-# --------------------------------------------------------------
 
 messages = [
     {"role": "system", "content": "You are a helpful assistant that answers questions from the knowledge base about our e-commerce store."},

@@ -16,10 +16,8 @@ logger = logging.getLogger(__name__)
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 model = "gpt-5-nano"
 
-# --------------------------------------------------------------
-# Step 1: Define the data models for each stage
-# --------------------------------------------------------------
 
+# Define the data models for each stage
 
 class EventExtraction(BaseModel):
     """First LLM call: Extract basic event information"""
@@ -52,11 +50,7 @@ class EventConfirmation(BaseModel):
         description="Generated calendar link if applicable"
     )
 
-
-# --------------------------------------------------------------
-# Step 2: Define the functions
-# --------------------------------------------------------------
-
+# Define the functions
 
 def extract_event_info(user_input: str) -> EventExtraction:
     """First LLM call to determine if input is a calendar event"""
@@ -130,10 +124,7 @@ def generate_confirmation(event_details: EventDetails) -> EventConfirmation:
     return result
 
 
-# --------------------------------------------------------------
-# Step 3: Chain the functions together
-# --------------------------------------------------------------
-
+# Chain the functions together
 
 def process_calendar_request(user_input: str) -> Optional[EventConfirmation]:
     """Main function implementing the prompt chain with gate check"""
@@ -165,9 +156,7 @@ def process_calendar_request(user_input: str) -> Optional[EventConfirmation]:
     return confirmation
 
 
-# --------------------------------------------------------------
-# Step 4: Test the chain with a valid input
-# --------------------------------------------------------------
+# Test the chain with a valid input
 
 user_input = "Let's schedule a 1h team meeting next Tuesday at 2pm with Alice and Bob to discuss the project roadmap."
 
@@ -180,9 +169,7 @@ else:
     print("This doesn't appear to be a calendar event request.")
 
 
-# --------------------------------------------------------------
-# Step 5: Test the chain with an invalid input
-# --------------------------------------------------------------
+# Test the chain with an invalid input
 
 user_input = "Can you send an email to Alice and Bob to discuss the project roadmap?"
 
