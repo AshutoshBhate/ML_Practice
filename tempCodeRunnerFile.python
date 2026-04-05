@@ -1,0 +1,2 @@
+square = map(lambda x : x*x, 10)
+print(square)
