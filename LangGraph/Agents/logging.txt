@@ -1,0 +1,15 @@
+Your Converstaion Log:
+You: Hi I am Steve
+AI: Hello, Steve! How can I assist you today?
+
+You: Good Mornign
+AI: Good morning, Steve! How's your day going so far?
+
+You: Tell me a joke
+AI: Sure! Here you go:
+
+Why did the scarecrow win an award?
+
+Because he was outstanding in his field! 
+
+End of Converstaion

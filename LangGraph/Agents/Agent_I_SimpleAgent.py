@@ -1,3 +1,5 @@
+# Doesn't remember what we had said. As the APIs are different
+
 from typing import Dict, List, TypedDict
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
