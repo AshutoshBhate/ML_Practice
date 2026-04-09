@@ -6,8 +6,12 @@ from langchain_core.tools import tool
 from langgraph.graph.message import add_messages
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
+import os
 
-load_dotenv(dotenv_path=r"C:\Users\ashut\ML_Practice\LangGraph\.env", override=True)
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env_path = os.path.join(base_dir, ".env")
+
+load_dotenv(dotenv_path=env_path, override=True)
 
 # This is the global variable to store document content
 document_content = ""
@@ -63,16 +67,23 @@ def our_agent(state: AgentState) -> AgentState:
     The current document content is:{document_content}
     """)
 
-    if not state["messages"]:
+    messages_to_pass = list(state["messages"])
+    user_message = None
+
+    if not messages_to_pass:
         user_input = "I'm ready to help you update a document. What would you like to create?"
         user_message = HumanMessage(content=user_input)
-
+        messages_to_pass.append(user_message)
+    elif isinstance(messages_to_pass[-1], ToolMessage):
+        # We just executed a tool, let the AI interpret it before asking for more user input
+        pass
     else:
         user_input = input("\nWhat would you like to do with the document? ")
         print(f"\n USER: {user_input}")
         user_message = HumanMessage(content=user_input)
+        messages_to_pass.append(user_message)
 
-    all_messages = [system_prompt] + list(state["messages"]) + [user_message]
+    all_messages = [system_prompt] + messages_to_pass
 
     response = model.invoke(all_messages)
 
@@ -80,8 +91,11 @@ def our_agent(state: AgentState) -> AgentState:
     if hasattr(response, "tool_calls") and response.tool_calls:
         print(f" USING TOOLS: {[tc['name'] for tc in response.tool_calls]}")
 
-    return {"messages": list(state["messages"]) + [user_message, response]}
-
+    # LangGraph's add_messages naturally appends to the state, so we just return the updates
+    if user_message:
+        return {"messages": [user_message, response]}
+    else:
+        return {"messages": [response]}
 
 def should_continue(state: AgentState) -> str:
     """Determine if we should continue or end the conversation."""
@@ -114,26 +128,27 @@ def print_messages(messages):
 graph = StateGraph(AgentState)
 
 graph.add_node("agent", our_agent)
-graph.add_node("tools", ToolNode(tools))
+
+tool_node = ToolNode(tools= tools)
+graph.add_node("tools", tool_node)
 
 graph.set_entry_point("agent")
 
 def should_use_tools(state: AgentState) -> str:
-    """Route to tools if the last AI message contains tool calls, else end."""
+    """Route to tools if the last AI message contains tool calls, else ask user for more input."""
     messages = state["messages"]
     if messages and isinstance(messages[-1], AIMessage) and messages[-1].tool_calls:
         return "tools"
-    return "end"
+    return "ask_user"
 
 graph.add_conditional_edges(
     "agent",
     should_use_tools,
     {
         "tools": "tools",
-        "end": END,
+        "ask_user": "agent",  # Route back to agent node to ask for user input
     },
 )
-
 
 graph.add_conditional_edges(
     "tools",

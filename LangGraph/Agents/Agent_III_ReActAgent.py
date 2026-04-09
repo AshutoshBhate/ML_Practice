@@ -35,7 +35,12 @@ from langgraph.prebuilt import ToolNode
 # ToolNode: a pre-built LangGraph node that automatically handles tool execution
 # when the LLM decides to call a tool, ToolNode runs it and returns a ToolMessage
 
-load_dotenv(dotenv_path=r"C:\Users\ashut\ML_Practice\LangGraph\.env", override=True)
+import os
+
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env_path = os.path.join(base_dir, ".env")
+
+load_dotenv(dotenv_path=env_path, override=True)
 
 class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
@@ -65,7 +70,7 @@ model = ChatOpenAI(model = "gpt-4o-mini").bind_tools(tools)
 
 def model_call(state: AgentState) -> AgentState:
     system_prompt = SystemMessage(content= 
-        "You are my AI assistan, please answer my query to the best of your ability."
+        "You are my AI assistant, please answer my query to the best of your ability."
     )
     response = model.invoke([system_prompt] + list(state["messages"]))
     return {"messages": [response]}
@@ -111,4 +116,5 @@ def print_stream(stream):
 
 inputs: AgentState =  {"messages": [HumanMessage(content="Add 34 + 21. Multiply 5 * 6")]}
 # OR inputs = AgentState(messages=[HumanMessage(content="Add 3 + 4.")])
+
 print_stream(app.stream(inputs, stream_mode= "values"))

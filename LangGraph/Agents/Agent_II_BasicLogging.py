@@ -7,8 +7,12 @@ from langchain_core.messages import HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END
 from dotenv import load_dotenv
+import os
 
-load_dotenv(dotenv_path=r"C:\Users\ashut\ML_Practice\LangGraph\.env", override=True)
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env_path = os.path.join(base_dir, ".env")
+
+load_dotenv(dotenv_path=env_path, override=True)
 
 class AgentState(TypedDict):
     messages: List[Union[HumanMessage, AIMessage]]  # HumanMessage and AIMessage are datatypes in LangChain and LangGraph
