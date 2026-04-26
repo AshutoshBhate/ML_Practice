@@ -1,10 +1,9 @@
 import json
-
 import openai
 from dotenv import load_dotenv
 from tools import add
 
-load_dotenv("../.env")
+load_dotenv("../.env", override= True)
 
 """
 This is a simple example to demonstrate that MCP simply enables a new way to call functions.

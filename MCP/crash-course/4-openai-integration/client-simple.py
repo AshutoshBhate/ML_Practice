@@ -19,7 +19,7 @@ load_dotenv("../.env")
 session = None
 exit_stack = AsyncExitStack()
 openai_client = AsyncOpenAI()
-model = "gpt-4o"
+model = "gpt-4o-mini"
 stdio = None
 write = None
 
