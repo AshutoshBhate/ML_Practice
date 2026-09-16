@@ -5,7 +5,6 @@ from pydantic import BaseModel
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-
 class CalendarEvent(BaseModel):
     name: str
     date: str
