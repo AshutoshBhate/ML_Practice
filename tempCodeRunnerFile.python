@@ -1,1 +1,9 @@
-print("Hello World")
+class Dog:
+    def __init__(self, name): self.name = name
+
+def make_dog():
+    return Dog("Rex")      # a function whose last act is to build an instance and return it
+
+d = make_dog()             # d is a Dog. The function was just the delivery van.
+
+print(d.name)
