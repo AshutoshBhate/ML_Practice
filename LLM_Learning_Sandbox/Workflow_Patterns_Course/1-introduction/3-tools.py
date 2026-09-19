@@ -3,8 +3,11 @@ import os
 import requests
 from openai import OpenAI
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+load_dotenv()
+
+client = OpenAI()
 
 """
 docs: https://platform.openai.com/docs/guides/function-calling
