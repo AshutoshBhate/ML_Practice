@@ -18,10 +18,15 @@ docs: https://platform.openai.com/docs/guides/function-calling
 def get_weather(latitude, longitude):
     """This is a publically available API that returns the weather for a given location."""
     response = requests.get(
-        f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
+        f"https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m&timezone=auto&wind_speed_unit=ms"
     )
     data = response.json()
-    return data["current"]
+    # send the units and timezone too, so the model doesn't have to guess them
+    return {
+        "current": data["current"],
+        "units": data["current_units"],
+        "timezone": data["timezone"],
+    }
 
 
 # Call model with get_weather tool defined
@@ -69,10 +74,11 @@ def call_function(name, args):
         return get_weather(**args)
 
 
+messages.append(completion.choices[0].message)  # the model's request: once, not once per tool call
+
 for tool_call in completion.choices[0].message.tool_calls:
     name = tool_call.function.name
     args = json.loads(tool_call.function.arguments)
-    messages.append(completion.choices[0].message)
 
     result = call_function(name, args)
     messages.append(
