@@ -80,7 +80,7 @@ class KBResponse(BaseModel):
     source: int = Field(description="The record id of the answer.")
 
 
-completion_2 = client.beta.chat.completions.parse(
+completion_2 = client.chat.completions.parse(
     model="gpt-5-nano",
     messages=messages,
     tools=tools,
@@ -100,7 +100,7 @@ messages = [
     {"role": "user", "content": "What is the weather in Tokyo?"},
 ]
 
-completion_3 = client.beta.chat.completions.parse(
+completion_3 = client.chat.completions.parse(
     model="gpt-5-nano",
     messages=messages,
     tools=tools,

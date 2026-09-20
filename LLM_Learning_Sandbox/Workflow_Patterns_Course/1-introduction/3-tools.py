@@ -96,7 +96,7 @@ class WeatherResponse(BaseModel):
     )
 
 
-completion_2 = client.beta.chat.completions.parse(
+completion_2 = client.chat.completions.parse(
     model="gpt-5-nano",
     messages=messages,
     tools=tools,
