@@ -1,9 +1,11 @@
 import json
-import os
 from openai import OpenAI
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+load_dotenv()
+
+client = OpenAI()
 
 """
 docs: https://platform.openai.com/docs/guides/function-calling
@@ -63,10 +65,11 @@ def call_function(name, args):
         return search_kb(**args)
 
 
+messages.append(completion.choices[0].message)  # the model's request: once, not once per tool call
+
 for tool_call in completion.choices[0].message.tool_calls:
     name = tool_call.function.name
     args = json.loads(tool_call.function.arguments)
-    messages.append(completion.choices[0].message)
 
     result = call_function(name, args)
     messages.append(
