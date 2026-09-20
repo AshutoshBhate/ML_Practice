@@ -53,7 +53,7 @@ tools = [
 
 messages = [
     {"role": "system", "content": "You are a helpful weather assistant."},
-    {"role": "user", "content": "What's the weather like in Oslo today?"},
+    {"role": "user", "content": "What's the weather like in Pune today and also in Longyearbean?"},
 ]
 
 completion = client.chat.completions.create(
