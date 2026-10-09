@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
     print("Shutting down API...")
 
 # Initialize FastAPI app
-app = FastAPI(title="Naive RAG API", lifespan=lifespan)
+app = FastAPI(title="Self-RAG API (LangGraph)", lifespan=lifespan)
 
 # Basic GET command to resolve the error
 @app.get("/")
