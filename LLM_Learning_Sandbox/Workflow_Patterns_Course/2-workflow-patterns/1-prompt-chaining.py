@@ -2,18 +2,10 @@ from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
 from openai import OpenAI
-import os
-import logging
+from dotenv import load_dotenv
 
-# Set up logging configuration
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-logger = logging.getLogger(__name__)
-
-client = )
+load_dotenv()
+client = OpenAI()
 model = "gpt-5-nano"
 
 
@@ -54,13 +46,13 @@ class EventConfirmation(BaseModel):
 
 def extract_event_info(user_input: str) -> EventExtraction:
     """First LLM call to determine if input is a calendar event"""
-    logger.info("Starting event extraction analysis")
-    logger.debug(f"Input text: {user_input}")
+    print("Starting event extraction analysis")
+    print(f"Input text: {user_input}")
 
     today = datetime.now()
     date_context = f"Today is {today.strftime('%A, %B %d, %Y')}."
 
-    completion = client.beta.chat.completions.parse(
+    completion = client.chat.completions.parse(
         model=model,
         messages=[
             {
@@ -72,7 +64,7 @@ def extract_event_info(user_input: str) -> EventExtraction:
         response_format=EventExtraction,
     )
     result = completion.choices[0].message.parsed
-    logger.info(
+    print(
         f"Extraction complete - Is calendar event: {result.is_calendar_event}, Confidence: {result.confidence_score:.2f}"
     )
     return result
@@ -80,12 +72,12 @@ def extract_event_info(user_input: str) -> EventExtraction:
 
 def parse_event_details(description: str) -> EventDetails:
     """Second LLM call to extract specific event details"""
-    logger.info("Starting event details parsing")
+    print("Starting event details parsing")
 
     today = datetime.now()
     date_context = f"Today is {today.strftime('%A, %B %d, %Y')}."
 
-    completion = client.beta.chat.completions.parse(
+    completion = client.chat.completions.parse(
         model=model,
         messages=[
             {
@@ -97,30 +89,30 @@ def parse_event_details(description: str) -> EventDetails:
         response_format=EventDetails,
     )
     result = completion.choices[0].message.parsed
-    logger.info(
+    print(
         f"Parsed event details - Name: {result.name}, Date: {result.date}, Duration: {result.duration_minutes}min"
     )
-    logger.debug(f"Participants: {', '.join(result.participants)}")
+    print(f"Participants: {', '.join(result.participants)}")
     return result
 
 
 def generate_confirmation(event_details: EventDetails) -> EventConfirmation:
     """Third LLM call to generate a confirmation message"""
-    logger.info("Generating confirmation message")
+    print("Generating confirmation message")
 
-    completion = client.beta.chat.completions.parse(
+    completion = client.chat.completions.parse(
         model=model,
         messages=[
             {
                 "role": "system",
-                "content": "Generate a natural confirmation message for the event. Sign of with your name; Susie",
+                "content": "Generate a natural confirmation message for the event. Sign off with your name; Susie",
             },
             {"role": "user", "content": str(event_details.model_dump())},
         ],
         response_format=EventConfirmation,
     )
     result = completion.choices[0].message.parsed
-    logger.info("Confirmation message generated successfully")
+    print("Confirmation message generated successfully")
     return result
 
 
@@ -128,8 +120,8 @@ def generate_confirmation(event_details: EventDetails) -> EventConfirmation:
 
 def process_calendar_request(user_input: str) -> Optional[EventConfirmation]:
     """Main function implementing the prompt chain with gate check"""
-    logger.info("Processing calendar request")
-    logger.debug(f"Raw input: {user_input}")
+    print("Processing calendar request")
+    print(f"Raw input: {user_input}")
 
     # First LLM call: Extract basic info
     initial_extraction = extract_event_info(user_input)
@@ -139,12 +131,12 @@ def process_calendar_request(user_input: str) -> Optional[EventConfirmation]:
         not initial_extraction.is_calendar_event
         or initial_extraction.confidence_score < 0.7
     ):
-        logger.warning(
+        print(
             f"Gate check failed - is_calendar_event: {initial_extraction.is_calendar_event}, confidence: {initial_extraction.confidence_score:.2f}"
         )
         return None
 
-    logger.info("Gate check passed, proceeding with event processing")
+    print("Gate check passed, proceeding with event processing")
 
     # Second LLM call: Get detailed event information
     event_details = parse_event_details(initial_extraction.description)
@@ -152,7 +144,7 @@ def process_calendar_request(user_input: str) -> Optional[EventConfirmation]:
     # Third LLM call: Generate confirmation
     confirmation = generate_confirmation(event_details)
 
-    logger.info("Calendar request processing completed successfully")
+    print("Calendar request processing completed successfully")
     return confirmation
 
 

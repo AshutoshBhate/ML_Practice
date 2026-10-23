@@ -1,19 +1,10 @@
 from typing import List, Dict
 from pydantic import BaseModel, Field
 from openai import OpenAI
-import os
-import logging
+from dotenv import load_dotenv
 
-# Set up logging configuration
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-logger = logging.getLogger(__name__)
-
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+load_dotenv()
+client = OpenAI()
 model = "gpt-5-nano"
 
 # Define Data Models
@@ -92,6 +83,10 @@ Topic: {topic}
 Section Type: {section_type}
 Section Goal: {description}
 Style Guide: {style_guide}
+Target Length: {target_length} words
+
+Previous sections, for context (don't repeat them):
+{previous_sections}
 
 Return your response in this format:
 
@@ -128,7 +123,7 @@ class BlogOrchestrator:
 
     def get_plan(self, topic: str, target_length: int, style: str) -> OrchestratorPlan:
         """Get orchestrator's blog structure plan"""
-        completion = client.beta.chat.completions.parse(
+        completion = client.chat.completions.parse(
             model=model,
             messages=[
                 {
@@ -160,7 +155,7 @@ class BlogOrchestrator:
             ]
         )
 
-        completion = client.beta.chat.completions.parse(
+        completion = client.chat.completions.parse(
             model=model,
             messages=[
                 {
@@ -190,7 +185,7 @@ class BlogOrchestrator:
             ]
         )
 
-        completion = client.beta.chat.completions.parse(
+        completion = client.chat.completions.parse(
             model=model,
             messages=[
                 {
@@ -210,21 +205,21 @@ class BlogOrchestrator:
         self, topic: str, target_length: int = 1000, style: str = "informative"
     ) -> Dict:
         """Process the entire blog writing task"""
-        logger.info(f"Starting blog writing process for: {topic}")
+        print(f"Starting blog writing process for: {topic}")
 
         # Get blog structure plan
         plan = self.get_plan(topic, target_length, style)
-        logger.info(f"Blog structure planned: {len(plan.sections)} sections")
-        logger.info(f"Blog structure planned: {plan.model_dump_json(indent=2)}")
+        print(f"Blog structure planned: {len(plan.sections)} sections")
+        print(f"Blog structure planned: {plan.model_dump_json(indent=2)}")
 
         # Write each section
-        for section in plan.sections:
-            logger.info(f"Writing section: {section.section_type}")
+        for number, section in enumerate(plan.sections, start=1):
+            print(f"Writing section: {section.section_type}")
             content = self.write_section(topic, section)
-            self.sections_content[section.section_type] = content
+            self.sections_content[f"{number}. {section.section_type}"] = content
 
         # Review and polish
-        logger.info("Reviewing full blog post")
+        print("Reviewing full blog post")
         review = self.review_post(topic, plan)
 
         return {"structure": plan, "sections": self.sections_content, "review": review}

@@ -1,21 +1,13 @@
 import asyncio
-import logging
-import os
 import nest_asyncio
 from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
 
 nest_asyncio.apply()
 
-# Set up logging configuration
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-logger = logging.getLogger(__name__)
-
-client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+load_dotenv()
+client = AsyncOpenAI()
 model = "gpt-5-nano"
 
 
@@ -39,7 +31,7 @@ class SecurityCheck(BaseModel):
 
 async def validate_calendar_request(user_input: str) -> CalendarValidation:
     """Check if the input is a valid calendar request"""
-    completion = await client.beta.chat.completions.parse(
+    completion = await client.chat.completions.parse(
         model=model,
         messages=[
             {
@@ -55,7 +47,7 @@ async def validate_calendar_request(user_input: str) -> CalendarValidation:
 
 async def check_security(user_input: str) -> SecurityCheck:
     """Check for potential security risks"""
-    completion = await client.beta.chat.completions.parse(
+    completion = await client.chat.completions.parse(
         model=model,
         messages=[
             {
@@ -83,11 +75,11 @@ async def validate_request(user_input: str) -> bool:
     )
 
     if not is_valid:
-        logger.warning(
+        print(
             f"Validation failed: Calendar={calendar_check.is_calendar_request}, Security={security_check.is_safe}"
         )
         if security_check.risk_flags:
-            logger.warning(f"Security flags: {security_check.risk_flags}")
+            print(f"Security flags: {security_check.risk_flags}")
 
     return is_valid
 

@@ -1,18 +1,10 @@
 from typing import Optional, Literal
 from pydantic import BaseModel, Field
 from openai import OpenAI
-import os
-import logging
+from dotenv import load_dotenv
 
-# Set up logging configuration
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-logger = logging.getLogger(__name__)
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+load_dotenv()
+client = OpenAI()
 model = "gpt-5-nano"
 
 # Define the data models for routing and responses
@@ -66,9 +58,9 @@ class CalendarResponse(BaseModel):
 
 def route_calendar_request(user_input: str) -> CalendarRequestType:
     """Router LLM call to determine the type of calendar request"""
-    logger.info("Routing calendar request")
+    print("Routing calendar request")
 
-    completion = client.beta.chat.completions.parse(
+    completion = client.chat.completions.parse(
         model=model,
         messages=[
             {
@@ -80,7 +72,7 @@ def route_calendar_request(user_input: str) -> CalendarRequestType:
         response_format=CalendarRequestType,
     )
     result = completion.choices[0].message.parsed
-    logger.info(
+    print(
         f"Request routed as: {result.request_type} with confidence: {result.confidence_score}"
     )
     return result
@@ -88,10 +80,10 @@ def route_calendar_request(user_input: str) -> CalendarRequestType:
 
 def handle_new_event(description: str) -> CalendarResponse:
     """Process a new event request"""
-    logger.info("Processing new event request")
+    print("Processing new event request")
 
     # Get event details
-    completion = client.beta.chat.completions.parse(
+    completion = client.chat.completions.parse(
         model=model,
         messages=[
             {
@@ -104,7 +96,7 @@ def handle_new_event(description: str) -> CalendarResponse:
     )
     details = completion.choices[0].message.parsed
 
-    logger.info(f"New event: {details.model_dump_json(indent=2)}")
+    print(f"New event: {details.model_dump_json(indent=2)}")
 
     # Generate response
     return CalendarResponse(
@@ -116,10 +108,10 @@ def handle_new_event(description: str) -> CalendarResponse:
 
 def handle_modify_event(description: str) -> CalendarResponse:
     """Process an event modification request"""
-    logger.info("Processing event modification request")
+    print("Processing event modification request")
 
     # Get modification details
-    completion = client.beta.chat.completions.parse(
+    completion = client.chat.completions.parse(
         model=model,
         messages=[
             {
@@ -132,7 +124,7 @@ def handle_modify_event(description: str) -> CalendarResponse:
     )
     details = completion.choices[0].message.parsed
 
-    logger.info(f"Modified event: {details.model_dump_json(indent=2)}")
+    print(f"Modified event: {details.model_dump_json(indent=2)}")
 
     # Generate response
     return CalendarResponse(
@@ -144,14 +136,14 @@ def handle_modify_event(description: str) -> CalendarResponse:
 
 def process_calendar_request(user_input: str) -> Optional[CalendarResponse]:
     """Main function implementing the routing workflow"""
-    logger.info("Processing calendar request")
+    print("Processing calendar request")
 
     # Route the request
     route_result = route_calendar_request(user_input)
 
     # Check confidence threshold
     if route_result.confidence_score < 0.7:
-        logger.warning(f"Low confidence score: {route_result.confidence_score}")
+        print(f"Low confidence score: {route_result.confidence_score}")
         return None
 
     # Route to appropriate handler
@@ -160,7 +152,7 @@ def process_calendar_request(user_input: str) -> Optional[CalendarResponse]:
     elif route_result.request_type == "modify_event":
         return handle_modify_event(route_result.description)
     else:
-        logger.warning("Request type not supported")
+        print("Request type not supported")
         return None
 
 
