@@ -204,6 +204,9 @@ class BlogOrchestrator:
     def write_blog(
         self, topic: str, target_length: int = 1000, style: str = "informative"
     ) -> Dict:
+        #Just in case the write_blog() is called a second time
+        self.sections_content = {}
+        
         """Process the entire blog writing task"""
         print(f"Starting blog writing process for: {topic}")
 

@@ -4,8 +4,6 @@ from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
-nest_asyncio.apply()
-
 load_dotenv()
 client = AsyncOpenAI()
 model = "gpt-5-nano"
