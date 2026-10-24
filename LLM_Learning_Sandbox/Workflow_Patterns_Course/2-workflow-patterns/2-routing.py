@@ -1,3 +1,6 @@
+# This file shows routing. The handlers don't change any real calendar events,
+# they only return a message saying what would have been done.
+
 from typing import Optional, Literal
 from pydantic import BaseModel, Field
 from openai import OpenAI
