@@ -5,7 +5,7 @@ This file teaches the Model Context Protocol (MCP) from zero: What it is, why it
 - A quote block (`>`) is the answer to say out loud in an interview.
 - Diagrams are plain text, so they show in any Markdown preview (`Ctrl+Shift+V`).
 
-**Contents:** [1 What MCP is](#1-what-mcp-is) · [2 Function calling](#2-start-from-what-you-know-function-calling) · [3 The problem](#3-the-problem-mcp-solves) · [4 Host, client, server](#4-the-three-roles-host-client-and-server) · [5 Tools, resources, prompts](#5-what-a-server-offers-tools-resources-and-prompts) · [6 Messages](#6-how-they-talk-json-rpc-messages) · [7 Transports](#7-how-messages-travel-transports) · [8 Where the LLM fits](#8-where-the-llm-fits-mcp-plus-function-calling) · [9 When to use it](#9-when-to-use-mcp) · [10 Security](#10-security-basics) · [Say it out loud](#say-it-out-loud)
+**Contents:** [1 What MCP is](#1-what-mcp-is) · [2 Function calling](#2-start-from-what-you-know-function-calling) · [3 The problem](#3-the-problem-mcp-solves) · [4 Host, client, server](#4-the-three-roles-host-client-and-server) · [5 Tools, resources, prompts](#5-what-a-server-offers-tools-resources-and-prompts) · [6 Messages](#6-how-they-talk-json-rpc-messages) · [7 Transports](#7-how-messages-travel-transports) · [8 Where the LLM fits](#8-where-the-llm-fits-mcp-plus-function-calling) · [9 When to use it](#9-when-to-use-mcp) · [10 Security](#10-security-basics) · [Say it out loud](#say-it-out-loud) · [Appendix: What's new in mcp 2.x](#appendix-what-changes-in-mcp-2x-and-the-2026-07-28-spec)
 
 ---
 
@@ -256,7 +256,7 @@ The server runs `add(2, 3)` and answers:
 - `structuredContent` is the same result as typed JSON, matching the `outputSchema`.
 - `isError` says whether the tool failed. A failing tool still sends a normal result, with `isError: true` and the error message as text, so the model can read what went wrong and react.
 
-**The newest spec drops the handshake.** The conversation above follows protocol version 2025-11-25, which is what mcp 1.27.0 speaks. The newest version, 2026-07-28, makes MCP stateless: There's no `initialize` step any more. Every request carries its own protocol version and client capabilities, and a new `server/discover` method lets a client ask for the server's versions and features up front. The newer SDK (mcp 2.x) speaks it and falls back to the handshake for older servers. Listing and calling tools work the same way.
+**The newest spec drops the handshake.** The conversation above follows protocol version 2025-11-25, which is what mcp 1.27.0 speaks. The newest version, 2026-07-28, makes MCP stateless: There's no `initialize` step any more. Every request carries its own protocol version and client capabilities, and a new `server/discover` method lets a client ask for the server's versions and features up front. The newer SDK (mcp 2.x) speaks it and falls back to the handshake for older servers. Listing and calling tools work the same way. The appendix at the end of this file covers every change, for after you've finished the course.
 
 ---
 
@@ -363,7 +363,7 @@ An MCP server can run code and read data, and whatever it sends goes straight in
 
 > "MCP, the Model Context Protocol, is an open standard for connecting LLM apps to tools and data, often called USB-C for AI. A host app, like Claude Desktop or my own Python agent, holds one client per server. A server offers tools the model can call, resources the app can read, and prompts the user can pick. They exchange JSON-RPC messages: The client lists the tools, then calls one. Locally that runs over stdio, and remotely over Streamable HTTP, which replaced the older SSE transport. The model itself never speaks MCP: The host turns MCP tools into normal function-calling tools."
 
-**Learn later:** Sampling and elicitation (a server asking the client's model, or the user, for input), roots, the rest of the 2026-07-28 changes (multi round-trip requests, `subscriptions/listen`, caching hints), OAuth 2.1 authorization, MCP Inspector (a tool for testing servers), the tasks extension.
+**Learn later:** Sampling and elicitation (a server asking the client's model, or the user, for input), roots, OAuth 2.1 authorization, MCP Inspector (a tool for testing servers), the tasks extension. The 2026-07-28 changes are in the appendix below.
 
 ---
 
@@ -374,3 +374,389 @@ An MCP server can run code and read data, and whatever it sends goes straight in
 - **Part 5:** MCP and plain function calling, side by side.
 - **Part 6:** Running the server in Docker.
 - **Part 7:** Lifecycle management: Starting, running and closing servers and clients cleanly.
+
+---
+
+## Appendix: What changes in mcp 2.x and the 2026-07-28 spec
+
+> **Read this last.** Come back to it only after you've learned MCP from this file and worked through the whole folder (Parts 3 to 7). Everything above, and all the course code, uses mcp 1.27.0, which speaks protocol 2025-11-25.
+
+Two separate things changed, and it helps to keep them apart:
+
+- **The protocol (the spec):** The rules for the JSON messages on the wire. Version 2026-07-28 replaced 2025-11-25. This changes what the messages look like, whatever language you write in. Part A covers it.
+- **The Python SDK (the `mcp` package):** The library you write Python with. Version 2.x speaks the new protocol, and it also renamed classes and fields. This changes your Python code. Part B covers it.
+
+In USB terms: The protocol is the USB standard itself, and the SDK is the driver on your laptop. A new standard changes what travels down the cable. A new driver changes the code you write to use it.
+
+Every output below comes from a real run, with mcp 1.27.0 in `MCP_env` and mcp 2.3.0 in a separate test environment, both on Python 3.12.
+
+### A. The protocol: What changed on the wire
+
+#### A.1 No handshake: Every request carries its own version
+
+**Before (2025-11-25):** The client opened with `initialize`. The server answered with the agreed version and its features, and the client confirmed with `notifications/initialized`. Only then could it list or call tools. The agreed version held for the whole connection (section 6).
+
+**After (2026-07-28):** There's no opening conversation. Every request carries a `_meta` block with the client's protocol version, its name and its features. So the server can answer each request on its own, without remembering anything about the client. A client may first call `server/discover` to ask which versions and features the server supports, but it doesn't have to.
+
+<pre style="font-size: 0.85em; line-height: 1.35; white-space: pre; overflow-x: auto;">
+ Before (2025-11-25): A handshake first
+ client                           server
+   |--- initialize -------------------&gt;|
+   |&lt;-- agreed version, features ------|
+   |--- notifications/initialized ----&gt;|
+   |--- tools/call add ---------------&gt;|
+   |&lt;-- result: "5" -------------------|
+
+ After (2026-07-28): Every request stands alone
+ client                           server
+   |--- server/discover (optional) ---&gt;|
+   |&lt;-- versions, features ------------|
+   |--- tools/call add + _meta -------&gt;|
+   |&lt;-- result: "5" -------------------|
+</pre>
+
+**The real `server/discover` exchange** (mcp 2.3.0 client and server). The client sends:
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "server/discover",
+ "params": {"_meta": {
+   "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+   "io.modelcontextprotocol/clientInfo": {"name": "mcp", "version": "0.1.0"},
+   "io.modelcontextprotocol/clientCapabilities": {}}}}
+```
+
+The server answers:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "cacheScope": "private",
+    "capabilities": {
+      "prompts": {"listChanged": true},
+      "resources": {"listChanged": true, "subscribe": true},
+      "tools": {"listChanged": true}
+    },
+    "resultType": "complete",
+    "supportedVersions": ["2026-07-28"],
+    "ttlMs": 0,
+    "_meta": {"io.modelcontextprotocol/serverInfo": {"name": "Calculator", "version": ""}}
+  }
+}
+```
+
+`_meta` holds the same three facts the handshake used to send once (the version, the client's name and its capabilities), now sent with every request. The `io.modelcontextprotocol/` prefix marks them as official MCP keys. The server names itself in its own `_meta` on every result.
+
+**The same tool call, before and after.** Before, the call carried only the tool and its arguments:
+
+```json
+{"jsonrpc": "2.0", "id": 3, "method": "tools/call",
+ "params": {"name": "add", "arguments": {"a": 2, "b": 3}}}
+```
+
+After, it also carries `_meta`:
+
+```json
+{"jsonrpc": "2.0", "id": 3, "method": "tools/call",
+ "params": {"name": "add", "arguments": {"a": 2, "b": 3},
+            "_meta": {"io.modelcontextprotocol/protocolVersion": "2026-07-28",
+                      "io.modelcontextprotocol/clientInfo": {"name": "mcp", "version": "0.1.0"},
+                      "io.modelcontextprotocol/clientCapabilities": {}}}}
+```
+
+And the result gains two fields. Before:
+
+```json
+{"jsonrpc": "2.0", "id": 3, "result": {"content": [{"type": "text", "text": "5"}],
+ "structuredContent": {"result": 5}, "isError": false}}
+```
+
+After:
+
+```json
+{"jsonrpc": "2.0", "id": 3, "result": {"content": [{"text": "5", "type": "text"}],
+ "isError": false, "resultType": "complete", "structuredContent": {"result": 5},
+ "_meta": {"io.modelcontextprotocol/serverInfo": {"name": "Calculator", "version": ""}}}}
+```
+
+**If the versions don't match:** The server replies with an `UnsupportedProtocolVersion` error (code -32022) that lists the versions it does support, and the client retries with one of them.
+
+**Why the change:** Before, the server had to remember each client's handshake. That made it hard to run several copies of a server behind a load balancer, because the next request could land on a copy that never saw the handshake. Now any copy can answer any request.
+
+#### A.2 No sessions over HTTP
+
+**Before:** On Streamable HTTP, the server gave each client a session ID in an `Mcp-Session-Id` header. The client also opened an extra GET stream to receive messages the server started on its own, and ended the session with a DELETE.
+
+**After:** There's no session ID, no GET stream and no DELETE. Every message is its own POST to `/mcp`. Each POST also repeats key facts in HTTP headers, so a load balancer can route it without reading the JSON body: `MCP-Protocol-Version`, `Mcp-Method` (like `tools/call`) and, for a tool call, `Mcp-Name` (the tool's name).
+
+**Real traffic for the same work** (list the tools, then call `add`). Before, mcp 1.27.0, from the server's log:
+
+```text
+"POST /mcp HTTP/1.1" 200 OK
+"POST /mcp HTTP/1.1" 202 Accepted
+"GET /mcp HTTP/1.1" 200 OK
+"POST /mcp HTTP/1.1" 200 OK
+"POST /mcp HTTP/1.1" 200 OK
+"DELETE /mcp HTTP/1.1" 200 OK
+```
+
+That's six requests: `initialize`, the `initialized` notification (202 means "received, no reply"), the extra GET stream, `tools/list`, `tools/call`, and the DELETE that ends the session.
+
+After, mcp 2.3.0. A small logger printed each request's method, path, `Mcp-Method`, `Mcp-Name` and `MCP-Protocol-Version` headers:
+
+```text
+POST /mcp server/discover  2026-07-28
+POST /mcp tools/list  2026-07-28
+POST /mcp tools/call add 2026-07-28
+```
+
+That's three POSTs, one per request. The `Mcp-Name` column is empty except for the tool call, where it's `add`.
+
+#### A.3 The server asks for input differently: Multi round-trip requests
+
+Sometimes a server needs something before it can finish a call. It might need the user's GitHub username (elicitation), an answer from the client's LLM (sampling), or the folders the client allows it to use (roots).
+
+**Before:** The server paused the tool call and sent its own request to the client on the same connection, then waited for the answer. It had to hold the paused call in memory the whole time.
+
+**After:** The server ends the call straight away with a result marked `"resultType": "input_required"`, listing what it needs. The client collects the answers and sends the original request again, with a new `id` and the answers attached. The server can also attach a `requestState` string, which the client must send back unchanged, so the server doesn't need to remember anything in between.
+
+<pre style="font-size: 0.85em; line-height: 1.35; white-space: pre; overflow-x: auto;">
+ Before: The server asks mid-call, and waits
+ client                           server
+   |--- tools/call -------------------&gt;|
+   |&lt;-- "What's your username?" -------|  (the server's own request)
+   |--- "octocat" --------------------&gt;|
+   |&lt;-- result ------------------------|
+
+ After: The server ends the call, and the client asks again
+ client                           server
+   |--- tools/call (id 1) ------------&gt;|
+   |&lt;-- input_required: username? -----|
+   |--- tools/call (id 2) + answers --&gt;|
+   |&lt;-- result ------------------------|
+</pre>
+
+This is why every result now carries `resultType`: `"complete"` for a normal answer, and `"input_required"` for this case. You saw `"resultType": "complete"` in the real replies above. Only `tools/call`, `resources/read` and `prompts/get` may return `input_required`.
+
+#### A.4 Change notifications: `subscriptions/listen`
+
+**Before:** To hear that a server's tool list had changed, an HTTP client kept the extra GET stream open (A.2). To follow one resource, it called `resources/subscribe`.
+
+**After:** The client sends one `subscriptions/listen` request naming the kinds of change it wants: The tool list, the prompt list, the resource list, or specific resources. The server keeps that one reply open as a stream and sends only those notifications. Progress updates for a call still arrive on that call's own reply, not on this stream.
+
+#### A.5 Caching hints on lists
+
+List results (`tools/list`, `prompts/list`, `resources/list`) and `resources/read` now carry two hints:
+
+- **`ttlMs`:** How many milliseconds the client may reuse this answer before asking again.
+- **`cacheScope`:** `"private"` means only this client may cache it. `"public"` means shared caches, like a proxy, may keep it too.
+
+In the real replies above, the server sent `"ttlMs": 0` and `"cacheScope": "private"`. That means "Don't reuse this answer, and don't share it."
+
+#### A.6 Removed and deprecated
+
+**Removed in 2026-07-28:**
+
+- **`ping`:** The request a side used to check that the other was still alive.
+- **`logging/setLevel`:** The client now sets the log level per request, in `_meta`.
+- **Resumable streams:** Before, a broken HTTP stream could be picked up again using a `Last-Event-ID` header. Now a broken stream loses that request, and the client sends it again with a new `id`.
+
+**Deprecated** (they still work, but will be removed later, after at least twelve months):
+
+- **The HTTP+SSE transport:** Deprecated since 2025-03-26 (section 7).
+- **Roots:** Pass folders and files as tool arguments instead.
+- **Sampling:** The server calls an LLM API directly instead of borrowing the client's model.
+- **Logging:** Log to stderr (stdio) or use OpenTelemetry instead.
+
+### B. The Python SDK: What changed in your code
+
+#### B.1 The server: `FastMCP` is now `MCPServer`
+
+**Goal: The same calculator server in each version, run over Streamable HTTP on port 8050.**
+
+Before, mcp 1.x. The host and port go into the constructor:
+
+```python
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("Calculator", host="0.0.0.0", port=8050)
+
+
+@mcp.tool()
+def add(a: int, b: int) -> int:
+    """Add two numbers together"""
+    return a + b
+
+
+if __name__ == "__main__":
+    mcp.run(transport="streamable-http")
+```
+
+After, mcp 2.x. The class has a new name and import, and the host and port move into `run()`:
+
+```python
+from mcp.server.mcpserver import MCPServer
+
+mcp = MCPServer("Calculator")
+
+
+@mcp.tool()
+def add(a: int, b: int) -> int:
+    """Add two numbers together"""
+    return a + b
+
+
+if __name__ == "__main__":
+    mcp.run(transport="streamable-http", host="0.0.0.0", port=8050)
+```
+
+The decorators `@mcp.tool()`, `@mcp.resource()` and `@mcp.prompt()` stay the same. The old import fails on purpose in 2.x, with a message that tells you what to do:
+
+```text
+ModuleNotFoundError: No module named 'mcp.server.fastmcp'. This is mcp 2.x, where FastMCP was renamed to MCPServer (from mcp.server.mcpserver import MCPServer) and other APIs changed; see the migration guide at https://py.sdk.modelcontextprotocol.io/v2/migration/#fastmcp-renamed-to-mcpserver or pin 'mcp<2' to keep running v1 code.
+```
+
+That's why every server in this course would break on 2.x at its first line.
+
+#### B.2 The client: One `Client` instead of three steps
+
+**Goal: Start `server.py` over stdio, print the tool's input schema, call `add(2, 3)` and print the result.**
+
+Before, mcp 1.x. You do three steps yourself. `stdio_client` starts the server and gives you a read stream and a write stream. `ClientSession` wraps the two streams. `initialize()` does the handshake. `async with` opens each one and closes it when its block ends, and `asyncio.run(main())` runs the async function.
+
+```python
+import asyncio
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+
+server = StdioServerParameters(command="python", args=["server.py"])
+
+
+async def main():
+    async with stdio_client(server) as (read, write):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+
+            tools = await session.list_tools()
+            print(tools.tools[0].inputSchema)
+
+            result = await session.call_tool("add", {"a": 2, "b": 3})
+            print(result.content[0].text)
+            print(result.isError)
+
+
+asyncio.run(main())
+```
+
+```text
+{'properties': {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}, 'required': ['a', 'b'], 'title': 'addArguments', 'type': 'object'}
+5
+False
+```
+
+After, mcp 2.x. `Client` does all three steps. You give it the server, and it starts the transport, tries `server/discover`, and falls back to the handshake if the server is old:
+
+```python
+import asyncio
+from mcp import Client, StdioServerParameters
+
+server = StdioServerParameters(command="python", args=["server.py"])
+
+
+async def main():
+    async with Client(server) as client:
+        tools = await client.list_tools()
+        print(tools.tools[0].input_schema)
+
+        result = await client.call_tool("add", {"a": 2, "b": 3})
+        print(result.content[0].text)
+        print(result.is_error)
+
+
+asyncio.run(main())
+```
+
+```text
+{'type': 'object', 'properties': {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}, 'required': ['a', 'b'], 'title': 'addArguments'}
+5
+False
+```
+
+The results are the same. Only the key order in the schema differs, which doesn't matter in JSON. For a server over HTTP, you pass the URL instead: `Client("http://localhost:8050/mcp")`.
+
+#### B.3 Field names are snake_case
+
+In Python, 2.x names every field the Python way, in snake_case: `inputSchema` became `input_schema`, and `isError` became `is_error`. You can see both in B.2. The JSON on the wire doesn't change. It still says `inputSchema` and `isError`, as in A.1. Only the Python attribute names changed.
+
+#### B.4 A failing tool hides its error details
+
+**Goal: See what the client receives when a tool crashes.** The tool divides by zero:
+
+```python
+@mcp.tool()
+def divide(a: int, b: int) -> float:
+    """Divide a by b"""
+    return a / b
+```
+
+The client called `divide(1, 0)` and printed `is_error` (`isError` in 1.x) and the text. Before, mcp 1.27.0:
+
+```text
+True
+Error executing tool divide: division by zero
+```
+
+After, mcp 2.3.0:
+
+```text
+True
+Error executing tool divide
+```
+
+Both mark the call as failed. But 2.x keeps the real cause ("division by zero") in the server's own log and doesn't send it to the client, or to the model. That stops a tool from leaking internal details, like file paths or database errors. When you do want the model to see a reason, raise `ToolError` with your own message:
+
+```python
+from mcp.server.mcpserver.exceptions import ToolError
+
+
+@mcp.tool()
+def divide(a: int, b: int) -> float:
+    """Divide a by b"""
+    if b == 0:
+        raise ToolError("b must not be zero")
+    return a / b
+```
+
+```text
+True Error executing tool divide: b must not be zero
+```
+
+#### B.5 Smaller changes
+
+- **The HTTP library:** The SDK uses `httpx2` instead of `httpx`.
+- **Timeouts:** They're plain seconds (`read_timeout_seconds=30.0`) instead of `timedelta(seconds=30)`.
+- **The error class:** `McpError` (imported from `mcp.shared.exceptions`) became `MCPError` (imported from `mcp`).
+
+### C. Mixing old and new
+
+Both pairings worked in a real run over stdio:
+
+- **A new client (2.3.0) with an old server (1.27.0):** It works. The client tries `server/discover`, the old server doesn't know it and returns an error, and the client falls back to the handshake:
+
+```text
+CLIENT -> {"jsonrpc":"2.0","id":1,"method":"server/discover","params":{"_meta":{...}}}
+SERVER -> {"jsonrpc":"2.0","id":1,"error":{"code":-32602,"message":"Invalid request parameters","data":""}}
+CLIENT -> {"jsonrpc":"2.0","id":2,"method":"initialize","params":{"protocolVersion":"2025-11-25",...}}
+```
+
+The `_meta` and `initialize` params are shortened here with `...`. The server's next reply is the normal handshake answer from section 6.
+
+- **An old client (1.27.0) with a new server (2.3.0):** It works. The 2.x server still answers `initialize`, and the spec calls a server that speaks both versions "dual-era". The spec also allows a server that speaks only the new version, and an old client can't talk to that one.
+
+### D. What this means for you
+
+- This course stays on mcp 1.27.0. On 2.x, every server and client here would need the changes in Part B.
+- The ideas from sections 1 to 10 don't change: Host, client and server, tools, resources and prompts, JSON-RPC, and the transports. What changed is how a conversation starts, and that the server no longer has to remember anything between requests.
+
+> "I built with the 1.x Python SDK, which speaks protocol 2025-11-25, where a client opens with an initialize handshake. The newest spec, 2026-07-28, makes MCP stateless: There's no handshake and no session, every request carries its version and capabilities in `_meta`, and `server/discover` tells a client what a server supports. That lets any copy of a server answer any request. The 2.x SDK speaks it, renames FastMCP to MCPServer, and still falls back to the handshake for old servers."

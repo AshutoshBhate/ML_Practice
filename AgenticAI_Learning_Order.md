@@ -40,8 +40,8 @@ Goal: Build an MCP server, connect clients to it, and explain how MCP differs fr
 
 MCP comes right after Phase 1 because it only builds on function calling. It doesn't need LangGraph or RAG.
 
-11. **What MCP is:** [1-introduction-and-context/README.md](MCP/crash-course/1-introduction-and-context/README.md). The hype versus what MCP actually does.
-12. **Architecture:** [2-understanding-mcp/README.md](MCP/crash-course/2-understanding-mcp/README.md). Hosts, clients and servers, and the transports (STDIO, SSE, Streamable HTTP).
+11. **What MCP is:** [1-understanding-mcp/README.md](MCP/crash-course/1-understanding-mcp/README.md), sections 1 to 3. What MCP is and the problem it solves.
+12. **Architecture:** [1-understanding-mcp/README.md](MCP/crash-course/1-understanding-mcp/README.md), sections 4 to 10. Hosts, clients and servers, the messages, and the transports (STDIO, SSE, Streamable HTTP).
 13. **Your first server:** [3-simple-server-setup/server.py](MCP/crash-course/3-simple-server-setup/server.py).
 14. **Connecting over STDIO:** [client-stdio_Supplement1_Notebook.ipynb](MCP/crash-course/3-simple-server-setup/client-stdio_Supplement1_Notebook.ipynb), then [client-stdio_Supplement2_Notebook.ipynb](MCP/crash-course/3-simple-server-setup/client-stdio_Supplement2_Notebook.ipynb).
 15. **Connecting over SSE:** [client-sse_Supplement1_Notebook.ipynb](MCP/crash-course/3-simple-server-setup/client-sse_Supplement1_Notebook.ipynb), then [client-sse_Supplement2_Notebook.ipynb](MCP/crash-course/3-simple-server-setup/client-sse_Supplement2_Notebook.ipynb).
@@ -147,7 +147,7 @@ Tick each one once you can explain it out loud without looking.
 
 **MCP**
 - [ ] What MCP is and how it differs from function calling ([5-mcp-vs-function-calling/](MCP/crash-course/5-mcp-vs-function-calling/))
-- [ ] Host, client, server and the three transports ([2-understanding-mcp/README.md](MCP/crash-course/2-understanding-mcp/README.md))
+- [ ] Host, client, server and the three transports ([1-understanding-mcp/README.md](MCP/crash-course/1-understanding-mcp/README.md))
 - [ ] Building a server with FastMCP ([servers/youtube/server.py](MCP/servers/youtube/server.py))
 
 **LangGraph**

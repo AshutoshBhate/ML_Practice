@@ -4,8 +4,7 @@ The Model Context Protocol (MCP) is a powerful framework that enables developers
 
 ## Table of Contents
 
-1. [Introduction and Context](./1-introduction-and-context/README.md)
-2. [Understanding MCP](./2-understanding-mcp/README.md)
+1. [Understanding MCP](./1-understanding-mcp/README.md)
 3. [Simple Server Setup with Python SDK](./3-simple-server-setup/README.md)
 4. [OpenAI Integration](./4-openai-integration/README.md)
 5. [MCP vs Function Calling](./5-mcp-vs-function-calling/README.md)
