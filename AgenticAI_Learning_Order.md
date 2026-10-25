@@ -42,16 +42,16 @@ MCP comes right after Phase 1 because it only builds on function calling. It doe
 
 11. **What MCP is:** [1-understanding-mcp/README.md](MCP/crash-course/1-understanding-mcp/README.md), sections 1 to 3. What MCP is and the problem it solves.
 12. **Architecture:** [1-understanding-mcp/README.md](MCP/crash-course/1-understanding-mcp/README.md), sections 4 to 10. Hosts, clients and servers, the messages, and the transports (STDIO, SSE, Streamable HTTP).
-13. **Your first server:** [3-simple-server-setup/server.py](MCP/crash-course/3-simple-server-setup/server.py).
-14. **Connecting over STDIO:** [client-stdio_Supplement1_Notebook.ipynb](MCP/crash-course/3-simple-server-setup/client-stdio_Supplement1_Notebook.ipynb), then [client-stdio_Supplement2_Notebook.ipynb](MCP/crash-course/3-simple-server-setup/client-stdio_Supplement2_Notebook.ipynb).
-15. **Connecting over SSE:** [client-sse_Supplement1_Notebook.ipynb](MCP/crash-course/3-simple-server-setup/client-sse_Supplement1_Notebook.ipynb), then [client-sse_Supplement2_Notebook.ipynb](MCP/crash-course/3-simple-server-setup/client-sse_Supplement2_Notebook.ipynb).
-16. **Connecting over Streamable HTTP:** [client-streamable-http.py](MCP/crash-course/3-simple-server-setup/client-streamable-http.py).
-17. **MCP tools inside an OpenAI call:** [4-openai-integration/server.py](MCP/crash-course/4-openai-integration/server.py), then [client-simple_Supplement1_Notebook.ipynb](MCP/crash-course/4-openai-integration/client-simple_Supplement1_Notebook.ipynb) (one question), then [client_Supplement1_Notebook.ipynb](MCP/crash-course/4-openai-integration/client_Supplement1_Notebook.ipynb) (a full multi-turn client).
-18. **MCP versus function calling:** [5-mcp-vs-function-calling/](MCP/crash-course/5-mcp-vs-function-calling/). The same tools written both ways, side by side.
-19. **Running a server in Docker:** [6-run-with-docker/](MCP/crash-course/6-run-with-docker/). A calculator server with a `Dockerfile` and a client.
-20. **Lifecycle:** [7-lifecycle-management/README.md](MCP/crash-course/7-lifecycle-management/README.md). How servers and clients start up, run and shut down.
-21. **A real client:** [client_Supplement1_Notebook.ipynb](MCP/mcp_filesystem_client/client_Supplement1_Notebook.ipynb). Connects to the official Node.js filesystem server over STDIO: the handshake (`session.initialize()`), listing tools, then reading, writing and moving files through MCP.
-22. **Your own server:** [servers/youtube/server.py](MCP/servers/youtube/server.py), then [README.md](MCP/servers/youtube/README.md) and [youtube_server_walkthrough.md](MCP/servers/youtube/youtube_server_walkthrough.md). A `FastMCP` server with a `get_transcript` tool, tested in MCP Inspector and connected to Claude Desktop and Claude Code.
+13. **Your first server:** [server.ipynb](MCP/crash-course/2-simple-server-setup/server.ipynb), which explains [server.py](MCP/crash-course/2-simple-server-setup/server.py) line by line.
+14. **Connecting over STDIO:** [client-stdio.ipynb](MCP/crash-course/2-simple-server-setup/client-stdio.ipynb).
+15. **Connecting over Streamable HTTP:** [client-streamable-http.ipynb](MCP/crash-course/2-simple-server-setup/client-streamable-http.ipynb).
+16. **Connecting over SSE (legacy, read last):** [client-sse.ipynb](MCP/crash-course/2-simple-server-setup/client-sse.ipynb).
+17. **MCP tools inside an OpenAI call:** [server.ipynb](MCP/crash-course/3-openai-integration/server.ipynb) (the knowledge base tool), then [client-simple.ipynb](MCP/crash-course/3-openai-integration/client-simple.ipynb) (one question), then [client.ipynb](MCP/crash-course/3-openai-integration/client.ipynb) (the same client as a class, with several questions over one connection).
+18. **MCP versus function calling:** [mcp-vs-function-calling.ipynb](MCP/crash-course/4-mcp-vs-function-calling/mcp-vs-function-calling.ipynb). The same `add` tool used both ways, side by side.
+19. **Running a server in Docker:** [docker.ipynb](MCP/crash-course/5-run-with-docker/docker.ipynb). The calculator server in a container over Streamable HTTP, with its `Dockerfile` and a client.
+20. **Lifecycle:** [lifecycle.ipynb](MCP/crash-course/6-lifecycle-management/lifecycle.ipynb). How servers and clients start up, run and shut down, with a lifespan that opens and closes a database.
+21. **A real client:** [client.ipynb](MCP/mcp_filesystem_client/client.ipynb). Starts the official Node.js filesystem server with `npx` over STDIO, then writes, reads, moves and searches files in a sandbox folder, and shows the server refusing a path outside it.
+22. **A server from a tutorial:** [youtube.ipynb](MCP/servers/youtube/youtube.ipynb), then [README.md](MCP/servers/youtube/README.md). A `FastMCP` server with one `get_transcript` tool, rewritten from a tutorial and run over stdio with a Python client. The README shows how to add it to Claude Code or Claude Desktop.
 
 After Phase 3 you can explain: Host, client and server, the three transports, building a server with FastMCP, MCP versus function calling, and running a server in Docker.
 
@@ -146,7 +146,7 @@ Tick each one once you can explain it out loud without looking.
 - [ ] The four workflow patterns, especially prompt chaining with gate checks and orchestrator-worker ([2-workflow-patterns/](LLM_Learning_Sandbox/Workflow_Patterns_Course/2-workflow-patterns/))
 
 **MCP**
-- [ ] What MCP is and how it differs from function calling ([5-mcp-vs-function-calling/](MCP/crash-course/5-mcp-vs-function-calling/))
+- [ ] What MCP is and how it differs from function calling ([4-mcp-vs-function-calling/](MCP/crash-course/4-mcp-vs-function-calling/))
 - [ ] Host, client, server and the three transports ([1-understanding-mcp/README.md](MCP/crash-course/1-understanding-mcp/README.md))
 - [ ] Building a server with FastMCP ([servers/youtube/server.py](MCP/servers/youtube/server.py))
 

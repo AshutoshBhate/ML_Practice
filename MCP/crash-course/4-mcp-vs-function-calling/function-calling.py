@@ -1,15 +1,15 @@
 import json
-import openai
+
 from dotenv import load_dotenv
+from openai import OpenAI
+
 from tools import add
 
-load_dotenv("../.env", override= True)
+load_dotenv()
 
-"""
-This is a simple example to demonstrate that MCP simply enables a new way to call functions.
-"""
+client = OpenAI()
+model = "gpt-4o-mini"
 
-# Define tools for the model
 tools = [
     {
         "type": "function",
@@ -28,30 +28,22 @@ tools = [
     }
 ]
 
+messages = [{"role": "user", "content": "Calculate 25 + 17"}]
 
-# Call LLM
-response = openai.chat.completions.create(
-    model="gpt-4o",
-    messages=[{"role": "user", "content": "Calculate 25 + 17"}],
-    tools=tools,
-)
+response = client.chat.completions.create(model=model, messages=messages, tools=tools)
+assistant_message = response.choices[0].message
+messages.append(assistant_message)
 
-# Handle tool calls
-if response.choices[0].message.tool_calls:
-    tool_call = response.choices[0].message.tool_calls[0]
-    tool_name = tool_call.function.name
-    tool_args = json.loads(tool_call.function.arguments)
+if assistant_message.tool_calls:
+    for tool_call in assistant_message.tool_calls:
+        name = tool_call.function.name
+        args = json.loads(tool_call.function.arguments)
+        print("The model called:", name, args)
 
-    # Execute directly
-    result = add(**tool_args)
+        result = add(args["a"], args["b"])
+        messages.append({"role": "tool", "tool_call_id": tool_call.id, "content": str(result)})
 
-    # Send result back to model
-    final_response = openai.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "user", "content": "Calculate 25 + 17"},
-            response.choices[0].message,
-            {"role": "tool", "tool_call_id": tool_call.id, "content": str(result)},
-        ],
-    )
+    final_response = client.chat.completions.create(model=model, messages=messages, tools=tools)
     print(final_response.choices[0].message.content)
+else:
+    print(assistant_message.content)

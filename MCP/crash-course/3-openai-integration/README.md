@@ -1,76 +1,20 @@
-# OpenAI Integration with MCP
+# Part 3: An OpenAI model using MCP tools
 
-This section demonstrates how to integrate the Model Context Protocol (MCP) with OpenAI's API to create a system where OpenAI can access and use tools provided by your MCP server.
+This folder connects an OpenAI model to an MCP server. The server, `server.py`, offers one tool, `get_knowledge_base`, which returns five company-policy questions and answers from `data/kb.json`. The client lists the server's tools, converts them into OpenAI's tool format, and runs the normal function-calling loop: The model decides whether to call a tool, the client runs that call on the MCP server, and the model answers from the result.
 
-## Overview
+Each script comes as a `.py` for quick lookup and a notebook that explains it step by step, with real outputs.
 
-This example shows how to:
+## Reading order
 
-1. Create an MCP server that exposes a knowledge base tool
-2. Connect OpenAI to this MCP server
-3. Allow OpenAI to dynamically use the tools when responding to user queries
+1. **`server.ipynb`:** The knowledge base tool: Its data, its schema, and what it returns.
+2. **`client-simple.ipynb`:** The full loop in plain functions, answering one question.
+3. **`client.ipynb`:** The same client as a class that connects once and answers several questions over one connection.
 
-## Connection Methods
+## Running it
 
-This example uses the **stdio transport** for communication between the client and server, which means:
+Run from this folder, with the environment active (`conda activate MCP_env`). The OpenAI key comes from `crash-course/.env`, which `load_dotenv()` finds by searching the folders above.
 
-- The client and server run in the same process
-- The client directly launches the server as a subprocess
-- No separate server process is needed
+- `python client-simple.py` asks one question.
+- `python client.py` asks three questions over one connection.
 
-If you want to split your client and server into separate applications (e.g., running the server on a different machine), you'll need to use the **SSE (Server-Sent Events) transport** instead. For details on setting up an SSE connection, see the [Simple Server Setup](../3-simple-server-setup) section.
-
-### Data Flow Explanation
-
-1. **User Query**: The user sends a query to the system (e.g., "What is our company's vacation policy?")
-2. **OpenAI API**: OpenAI receives the query and available tools from the MCP server
-3. **Tool Selection**: OpenAI decides which tools to use based on the query
-4. **MCP Client**: The client receives OpenAI's tool call request and forwards it to the MCP server
-5. **MCP Server**: The server executes the requested tool (e.g., retrieving knowledge base data)
-6. **Response Flow**: The tool result flows back through the MCP client to OpenAI
-7. **Final Response**: OpenAI generates a final response incorporating the tool data
-
-## How OpenAI Executes Tools
-
-OpenAI's function calling mechanism works with MCP tools through these steps:
-
-1. **Tool Registration**: The MCP client converts MCP tools to OpenAI's function format
-2. **Tool Choice**: OpenAI decides which tools to use based on the user query
-3. **Tool Execution**: The MCP client executes the selected tools and returns results
-4. **Context Integration**: OpenAI incorporates the tool results into its response
-
-## The Role of MCP
-
-MCP serves as a standardized bridge between AI models and your backend systems:
-
-- **Standardization**: MCP provides a consistent interface for AI models to interact with tools
-- **Abstraction**: MCP abstracts away the complexity of your backend systems
-- **Security**: MCP allows you to control exactly what tools and data are exposed to AI models
-- **Flexibility**: You can change your backend implementation without changing the AI integration
-
-## Implementation Details
-
-### Server (`server.py`)
-
-The MCP server exposes a `get_knowledge_base` tool that retrieves Q&A pairs from a JSON file.
-
-### Client (`client.py`)
-
-The client:
-
-1. Connects to the MCP server
-2. Converts MCP tools to OpenAI's function format
-3. Handles the communication between OpenAI and the MCP server
-4. Processes tool results and generates final responses
-
-### Knowledge Base (`data/kb.json`)
-
-Contains Q&A pairs about company policies that can be queried through the MCP server.
-
-## Running the Example
-
-1. Ensure you have the required dependencies installed
-2. Set up your OpenAI API key in the `.env` file
-3. Run the client: `python client.py`
-
-Note: With the stdio transport used in this example, you don't need to run the server separately as the client will automatically start it.
+Both clients start the server themselves over stdio, so there's nothing to start first. The server's log goes to `server_log.txt`. The server is a separate process: The client starts it as a child process. To run it on another machine instead, you'd serve it over Streamable HTTP (Part 2) and connect with `streamable_http_client`.

@@ -1,47 +1,43 @@
 # MCP Crash Course for Python Developers
 
-The Model Context Protocol (MCP) is a powerful framework that enables developers to build AI applications with large language models (LLMs) by providing a standardized way to connect models with external data sources and tools. This crash course will guide you through the fundamentals of MCP, from understanding its core concepts to implementing servers and clients that leverage prompts, resources, and tools.
+**MCP (Model Context Protocol) is an open standard for connecting LLM apps to tools and data.** This course explains it from zero, then builds servers and clients in Python with the official SDK (mcp 1.27.0). Every script has a notebook next to it that explains it step by step, with real outputs.
 
-## Table of Contents
+## The parts
 
-1. [Understanding MCP](./1-understanding-mcp/README.md)
-3. [Simple Server Setup with Python SDK](./3-simple-server-setup/README.md)
-4. [OpenAI Integration](./4-openai-integration/README.md)
-5. [MCP vs Function Calling](./5-mcp-vs-function-calling/README.md)
-6. [Running with Docker](./6-run-with-docker/README.md)
-7. [Lifecycle Management](./7-lifecycle-management/README.md)
+1. **[Understanding MCP](./1-understanding-mcp/README.md):** What MCP is, the host, client and server, tools, resources and prompts, the JSON-RPC messages and the transports. Its appendix covers the 2026-07-28 spec and mcp 2.x.
+2. **[A simple server and its clients](./2-simple-server-setup/README.md):** A calculator server, with a client for stdio, Streamable HTTP and SSE.
+3. **[An OpenAI model using MCP tools](./3-openai-integration/README.md):** A host that hands an MCP server's tools to an OpenAI model.
+4. **[MCP vs plain function calling](./4-mcp-vs-function-calling/README.md):** The same tool, used both ways.
+5. **[Running the server in Docker](./5-run-with-docker/README.md):** The server in a container, over Streamable HTTP.
+6. **[Lifecycle management](./6-lifecycle-management/README.md):** The three phases of a connection, and a lifespan that opens and closes a database.
 
-## Setting Up Your Development Environment
+Also in the `MCP` folder:
 
-Let's start by setting up our environment. The MCP Python SDK provides everything we need to build both servers and clients.
+- **[mcp_filesystem_client](../mcp_filesystem_client/README.md):** A Python client for the official Node.js filesystem server.
+- **[servers/youtube](../servers/youtube/README.md):** A YouTube transcript server, rewritten from a tutorial.
+
+## Setup
+
+Everything runs in one conda environment, MCP_env, with Python 3.12:
 
 ```bash
-# Using uv (recommended)
-uv pip install -r requirements.txt
-
-# Or using pip
+conda create -n MCP_env python=3.12
+conda activate MCP_env
 pip install -r requirements.txt
 ```
 
-The MCP CLI tools provide helpful utilities for development and testing:
+`requirements.txt` pins mcp 1.27.0 and openai 2.32.0. Parts 3 and 4 call OpenAI, so they need `OPENAI_API_KEY` in `crash-course/.env`. Run each part's commands from that part's folder, and use the MCP_env kernel for the notebooks.
 
-```bash
-# Test a server with the MCP Inspector
-mcp dev server.py
+A few parts need one more thing:
 
-# Install a server in Claude Desktop
-mcp install server.py
+- **Part 5:** Docker Desktop.
+- **mcp_filesystem_client:** Node.js, for `npx`.
+- **servers/youtube:** `pip install youtube-transcript-api==1.2.4`.
 
-# Run a server directly
-mcp run server.py
-```
+## Resources
 
-## Resources and Next Steps
-
-Key resources for deepening your MCP knowledge:
-
-- [Model Context Protocol documentation](https://modelcontextprotocol.io)
-- [Model Context Protocol specification](https://spec.modelcontextprotocol.io)
-- [Python SDK GitHub repository](https://github.com/modelcontextprotocol/python-sdk)
-- [Officially supported servers](https://github.com/modelcontextprotocol/servers)
-- [MCP Core Architecture](https://modelcontextprotocol.io/docs/concepts/architecture)
+- [MCP documentation](https://modelcontextprotocol.io)
+- [The spec, version 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25), which mcp 1.27.0 speaks
+- [The spec, version 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28), the newest
+- [Python SDK on GitHub](https://github.com/modelcontextprotocol/python-sdk)
+- [Official servers](https://github.com/modelcontextprotocol/servers)

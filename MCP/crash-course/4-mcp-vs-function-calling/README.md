@@ -1,26 +1,26 @@
-## Part 4: Comparing MCP to Traditional Approaches
+# Part 4: MCP vs plain function calling
 
-### Side-by-Side Comparison
+This folder answers "Calculate 25 + 17" twice, with the same `add` function from `tools.py`: Once with plain function calling, and once through an MCP server. The notebook `mcp-vs-function-calling.ipynb` puts the two side by side, with real outputs.
 
-Let's compare our MCP implementation to a traditional function-calling approach in `function-calling.py`
+## Files
 
-At this small scale, the traditional approach is simpler. The key differences become apparent when:
+- **`tools.py`:** The `add` function both versions use.
+- **`function-calling.py`:** Plain function calling. The schema is written by hand, and `add` is called directly.
+- **`server.py`:** An MCP server that serves the same `add`, registered with `mcp.add_tool(add)`.
+- **`mcp-calling.py`:** The same question through the MCP server. It starts the server itself over stdio.
 
-1. **Scale increases**: With dozens of tools, the MCP approach provides better organization
-2. **Reuse matters**: The MCP server can be used by multiple clients and applications
-3. **Distribution is needed**: MCP provides standard mechanisms for remote operation
+## Running it
 
-### When to Use MCP vs. Traditional Approaches
+Run from this folder, with the environment active (`conda activate MCP_env`):
 
-**Consider MCP when**:
+```bash
+python function-calling.py
+python mcp-calling.py
+```
 
-- You need to share tool implementations across multiple applications
-- You're building a distributed system with components on different machines
-- You want to leverage existing MCP servers from the ecosystem
-- You're building a product where standardization provides user benefits
+Both print `The model called: add {'a': 25, 'b': 17}`, then the model's answer.
 
-**Traditional approaches may be better when**:
+## When to use which
 
-- You have a simpler, self-contained application
-- Performance is critical (direct function calls have less overhead)
-- You're early in development and rapid iteration is more important than standardization
+- **Plain function calling:** One self-contained app with a few tools of its own, where every call should be as fast as possible, or an early prototype.
+- **MCP:** The same tools serve several apps or teams, a ready-made server already exists, or the tool should run somewhere else, like a container, another machine, or another team's service.

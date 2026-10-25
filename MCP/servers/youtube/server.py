@@ -1,35 +1,26 @@
-# /// script
-# requires-python = ">=3.12"
-# dependencies = [
-#     "mcp[cli]>=1.12.3",
-#     "pydantic>=2.11.7",
-#     "python-dotenv>=1.1.1",
-#     "requests>=2.32.4",
-#     "youtube-transcript-api>=1.2.2",
-# ]
-# ///
-
+import re
 
 from mcp.server.fastmcp import FastMCP
-from src.service import YouTubeTranscriptService
+from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.formatters import TextFormatter
 
-mcp = FastMCP(
-    name="YouTube",
-    stateless_http=True,
-)
+mcp = FastMCP("YouTube")
+api = YouTubeTranscriptApi()
 
-_service = YouTubeTranscriptService(use_proxy=True)
+
+def extract_video_id(url_or_id):
+    match = re.search(r"(?:v=|youtu\.be/|embed/|shorts/)([0-9A-Za-z_-]{11})", url_or_id)
+    if match:
+        return match.group(1)
+    return url_or_id
 
 
 @mcp.tool()
-def get_transcript(
-    video_url_or_id: str,
-) -> str:
-    """Get transcript as plain text."""
-    try:
-        return _service.get_transcript_text(video_url_or_id)
-    except Exception as e:
-        return f"Error: {str(e)}"
+def get_transcript(video_url_or_id: str) -> str:
+    """Get the transcript of a YouTube video as plain text, from its URL or its 11-character video ID."""
+    video_id = extract_video_id(video_url_or_id)
+    transcript = api.fetch(video_id)
+    return TextFormatter().format_transcript(transcript)
 
 
 if __name__ == "__main__":

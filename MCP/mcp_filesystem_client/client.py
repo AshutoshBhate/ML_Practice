@@ -1,115 +1,52 @@
-"""
-MCP Filesystem Client (stdio transport)
-----------------------------------------
-Connects to the official @modelcontextprotocol/server-filesystem Node.js server
-as a subprocess and calls its tools from pure Python.
-
-Prerequisites:
-    pip install mcp
-    npm install -g @modelcontextprotocol/server-filesystem   # or use npx (no install needed)
-
-Usage:
-    python client.py
-"""
-
 import asyncio
 import os
+
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-
-# ── Configuration ─────────────────────────────────────────────────────────────
-
-# The directory you want the filesystem server to have access to.
-# Change this to any absolute path on your machine.
-ALLOWED_DIR = os.path.expanduser("~/mcp_sandbox")
-
-# Server launch parameters – we use npx so no global npm install is needed.
-SERVER_PARAMS = StdioServerParameters(
+sandbox = os.path.abspath("sandbox")
+server = StdioServerParameters(
     command="npx",
-    args=["-y", "@modelcontextprotocol/server-filesystem", ALLOWED_DIR],
+    args=["-y", "@modelcontextprotocol/server-filesystem@2.0.1", sandbox],
 )
 
 
-# ── Helper ─────────────────────────────────────────────────────────────────────
-
-async def call(session: ClientSession, tool: str, **kwargs):
-    """Thin wrapper: call a tool and return the first text result."""
-    result = await session.call_tool(tool, arguments=kwargs)
-    # result.content is a list of TextContent / BlobContent blocks
-    texts = [block.text for block in result.content if hasattr(block, "text")]
-    return "\n".join(texts)
-
-
-# ── Demo ───────────────────────────────────────────────────────────────────────
-
 async def main():
-    # Make sure the sandbox directory exists
-    os.makedirs(ALLOWED_DIR, exist_ok=True)
+    os.makedirs(sandbox, exist_ok=True)
+    file_path = os.path.join(sandbox, "hello.txt")
+    sub_dir = os.path.join(sandbox, "subdir")
+    new_path = os.path.join(sub_dir, "hello_moved.txt")
+    outside_path = os.path.abspath("client.py")
 
-    async with stdio_client(SERVER_PARAMS) as (read, write):
-        async with ClientSession(read, write) as session:
+    if os.path.exists(new_path):
+        os.remove(new_path)
 
-            # 1. Handshake
-            await session.initialize()
-            print("✅ Connected to MCP filesystem server\n")
+    with open("server_log.txt", "w") as log:
+        async with stdio_client(server, errlog=log) as (read, write):
+            async with ClientSession(read, write) as session:
+                await session.initialize()
 
-            # 2. Discover available tools
-            tools_response = await session.list_tools()
-            print("🔧 Available tools:")
-            for tool in tools_response.tools:
-                print(f"   • {tool.name}: {tool.description}")
-            print()
+                tools_result = await session.list_tools()
+                print(len(tools_result.tools), "tools")
 
-            # ── Write a file ──────────────────────────────────────────────────
-            file_path = os.path.join(ALLOWED_DIR, "hello.txt")
-            print(f"📝 Writing file: {file_path}")
-            result = await call(
-                session,
-                "write_file",
-                path=file_path,
-                content="Hello from Python MCP client!\nLine 2 here.\n",
-            )
-            print(f"   → {result}\n")
+                result = await session.call_tool("write_file", {"path": file_path, "content": "Hello from my MCP client!"})
+                print(result.content[0].text)
 
-            # ── Read the file back ────────────────────────────────────────────
-            print(f"📖 Reading file: {file_path}")
-            content = await call(session, "read_file", path=file_path)
-            print(f"   → {repr(content)}\n")
+                result = await session.call_tool("read_text_file", {"path": file_path})
+                print(result.content[0].text)
 
-            # ── List the directory ────────────────────────────────────────────
-            print(f"📂 Listing directory: {ALLOWED_DIR}")
-            listing = await call(session, "list_directory", path=ALLOWED_DIR)
-            print(f"   → {listing}\n")
+                result = await session.call_tool("create_directory", {"path": sub_dir})
+                print(result.content[0].text)
 
-            # ── Create a subdirectory ─────────────────────────────────────────
-            sub_dir = os.path.join(ALLOWED_DIR, "subdir")
-            print(f"📁 Creating directory: {sub_dir}")
-            result = await call(session, "create_directory", path=sub_dir)
-            print(f"   → {result}\n")
+                result = await session.call_tool("move_file", {"source": file_path, "destination": new_path})
+                print(result.content[0].text)
 
-            # ── Move (rename) the file ────────────────────────────────────────
-            new_path = os.path.join(sub_dir, "hello_moved.txt")
-            print(f"🚚 Moving {file_path} → {new_path}")
-            result = await call(
-                session, "move_file", source=file_path, destination=new_path
-            )
-            print(f"   → {result}\n")
+                result = await session.call_tool("search_files", {"path": sandbox, "pattern": "**/*.txt"})
+                print(result.content[0].text)
 
-            # ── Search for files ──────────────────────────────────────────────
-            print(f"🔍 Searching for '*.txt' under {ALLOWED_DIR}")
-            found = await call(
-                session, "search_files", path=ALLOWED_DIR, pattern="*.txt"
-            )
-            print(f"   → {found}\n")
-
-            # ── Get file metadata ─────────────────────────────────────────────
-            print(f"ℹ️  File info for: {new_path}")
-            info = await call(session, "get_file_info", path=new_path)
-            print(f"   → {info}\n")
-
-            print("✅ Demo complete!")
+                result = await session.call_tool("read_text_file", {"path": outside_path})
+                print(result.isError)
+                print(result.content[0].text)
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+asyncio.run(main())

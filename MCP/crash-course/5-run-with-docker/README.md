@@ -1,61 +1,41 @@
-# MCP Server with Docker
+# Part 5: Running the MCP server in Docker
 
-This project demonstrates how to run an MCP (Model Control Protocol) server using Docker. The server provides a simple calculator tool that can be accessed by a client.
+This folder runs the Part 2 calculator server inside a Docker container, over Streamable HTTP, and connects to it from a client on your machine. The notebook `docker.ipynb` explains each step, with real output from a build and a run.
 
-## Prerequisites
+## Files
 
-- Docker installed on your system
-- Git (to clone the repository)
+- **`server.py`:** The calculator server on Streamable HTTP. It listens on `0.0.0.0`, because inside a container `127.0.0.1` would make it unreachable from outside.
+- **`client.py`:** The Part 2 Streamable HTTP client, pointed at `http://127.0.0.1:8050/mcp`.
+- **`Dockerfile`:** Python 3.12 slim, the pinned requirements, then the server.
+- **`requirements.txt`:** `mcp==1.27.0`, plus `pydantic-settings==2.14.0`, which stops a startup warning that newer versions print.
 
-## Project Structure
+## Running it
 
-- `server.py`: The MCP server implementation with a simple calculator tool
-- `client.py`: A client that connects to the server and calls the calculator tool
-- `Dockerfile`: Instructions for building the Docker image
-- `requirements.txt`: Python dependencies for the project
+1. Start Docker Desktop.
+2. Build the image, from this folder:
 
-## Running with Docker
+   ```bash
+   docker build -t mcp-server .
+   ```
 
-### Step 1: Build the Docker image
+3. Run a container. `-p 127.0.0.1:8050:8050` publishes the port to your own computer only:
 
-```bash
-docker build -t mcp-server .
-```
+   ```bash
+   docker run --rm --name mcp-server -p 127.0.0.1:8050:8050 mcp-server
+   ```
 
-### Step 2: Run the Docker container
+4. In a second terminal, with MCP_env active, run the client:
 
-```bash
-docker run -p 8050:8050 mcp-server
-```
+   ```bash
+   python client.py
+   ```
 
-This will start the MCP server inside a Docker container and expose it on port 8050.
+   It prints `add`, `Add two numbers together` and `5`.
 
-## Running the Client
+5. Stop the container with `Ctrl+C`, or `docker stop mcp-server`.
 
-Once the server is running, you can run the client in a separate terminal:
+## If it doesn't connect
 
-```bash
-python client.py
-```
-
-The client will connect to the server, list available tools, and call the calculator tool to add 2 and 3.
-
-## Troubleshooting
-
-If you encounter connection issues:
-
-1. **Check if the server is running**: Make sure the Docker container is running with `docker ps`.
-
-2. **Verify port mapping**: Ensure the port is correctly mapped with `docker ps` or by checking the output of the `docker run` command.
-
-3. **Check server logs**: View the server logs with `docker logs <container_id>` to see if there are any errors.
-
-4. **Host binding**: The server is configured to bind to `0.0.0.0` instead of `127.0.0.1` to make it accessible from outside the container. If you're still having issues, you might need to check your firewall settings.
-
-5. **Network issues**: If you're running Docker on a remote machine, make sure the port is accessible from your client machine.
-
-## Notes
-
-- The server is configured to use SSE (Server-Sent Events) transport and listens on port 8050.
-- The client connects to the server at `http://localhost:8050/sse`.
-- Make sure the server is running before starting the client. 
+- **Is the container running?** `docker ps` should list `mcp-server` with `127.0.0.1:8050->8050/tcp`.
+- **What did the server say?** `docker logs mcp-server` shows its startup lines and every request.
+- **Is port 8050 already taken?** Stop whatever else uses it, for example a `python server.py` from Part 2.

@@ -1,6 +1,6 @@
 # MCP Crash Course, Part 1: Understanding MCP
 
-This file teaches the Model Context Protocol (MCP) from zero: What it is, why it exists, the parts it's made of, the messages those parts send, and how the messages travel. Parts 3 to 7 then build it in code.
+This file teaches the Model Context Protocol (MCP) from zero: What it is, why it exists, the parts it's made of, the messages those parts send, and how the messages travel. Parts 2 to 6 then build it in code.
 
 - A quote block (`>`) is the answer to say out loud in an interview.
 - Diagrams are plain text, so they show in any Markdown preview (`Ctrl+Shift+V`).
@@ -73,7 +73,7 @@ In USB terms: 3 laptops and 4 devices without a standard need 12 special cables.
 
 ## 4. The three roles: Host, client and server
 
-**Host: The app the user talks to.** It holds the conversation with the LLM. Examples are Claude Desktop, Cursor, VS Code, or your own Python script (Part 4 builds one).
+**Host: The app the user talks to.** It holds the conversation with the LLM. Examples are Claude Desktop, Cursor, VS Code, or your own Python script (Part 3 builds one).
 
 **Client: The part of the host that talks to one server.** It's a connection inside the host, not a separate app. A host that uses three servers holds three clients, one per server.
 
@@ -151,7 +151,7 @@ A client finds each kind with its own pair of methods: `tools/list` and `tools/c
 - **Response:** It carries the same `id`, plus either a `result` or an `error`. The `id` is how the client matches each answer to its question.
 - **Notification:** It has a `method` but no `id`. It's a one-way message, and nobody replies.
 
-Below is a real conversation with the Part 3 calculator server (one tool, `add`) over stdio, using the SDK in this repo (mcp 1.27.0). The server's replies are exactly what came back, spaced out for reading.
+Below is a real conversation with the Part 2 calculator server (one tool, `add`) over stdio, using the SDK in this repo (mcp 1.27.0). The server's replies are exactly what came back, spaced out for reading.
 
 <pre style="font-size: 0.85em; line-height: 1.35; white-space: pre; overflow-x: auto;">
  client                                         server
@@ -268,7 +268,7 @@ The server runs `add(2, 3)` and answers:
 
 **Streamable HTTP: For a server reached over a network.** The server runs as a web app with one endpoint, `/mcp`. The client sends each message as an HTTP POST. The server answers with plain JSON, or with a stream of events when it has several things to send (progress updates, then the result). One server can serve many clients, and it can run in Docker or in the cloud. This is the current standard for remote servers.
 
-**SSE (Server-Sent Events): The old HTTP transport, now deprecated.** The client kept a connection open to `/sse` to receive the server's messages, and sent its own messages to a second endpoint, `/messages/`. The spec replaced it with Streamable HTTP in version 2025-03-26, and version 2026-07-28 formally marks it Deprecated. Part 3 keeps one SSE example for comparison.
+**SSE (Server-Sent Events): The old HTTP transport, now deprecated.** The client kept a connection open to `/sse` to receive the server's messages, and sent its own messages to a second endpoint, `/messages/`. The spec replaced it with Streamable HTTP in version 2025-03-26, and version 2026-07-28 formally marks it Deprecated. Part 2 keeps one SSE example for comparison.
 
 <pre style="font-size: 0.85em; line-height: 1.35; white-space: pre; overflow-x: auto;">
  stdio (same machine)
@@ -305,7 +305,7 @@ Which one to use:
 
 **The key point:** The LLM never speaks MCP. MCP connects the host to its servers. The host still talks to the model with ordinary function calling.
 
-Part 4 of this course builds exactly this. Its client asks the server for its tools, rewrites each one into OpenAI's tool format (the name, the description, and `inputSchema` placed under `parameters`), and then runs the usual function-calling loop. The only difference is that a tool call goes to the server instead of to a local function:
+Part 3 of this course builds exactly this. Its client asks the server for its tools, rewrites each one into OpenAI's tool format (the name, the description, and `inputSchema` placed under `parameters`), and then runs the usual function-calling loop. The only difference is that a tool call goes to the server instead of to a local function:
 
 <pre style="font-size: 0.85em; line-height: 1.35; white-space: pre; overflow-x: auto;">
  MCP server           host (your app)            OpenAI model
@@ -326,7 +326,7 @@ Step 4 sends the result back as a message with `"role": "tool"`, the same as in 
 
 **MCP:** The tool lives in a separate server behind a standard protocol. Any MCP host can find it with `tools/list` and use it, and it can run on another machine.
 
-So MCP doesn't replace function calling. It standardizes where the tools come from and how they're called. Part 5 compares the two side by side in code.
+So MCP doesn't replace function calling. It standardizes where the tools come from and how they're called. Part 4 compares the two side by side in code.
 
 ---
 
@@ -369,17 +369,19 @@ An MCP server can run code and read data, and whatever it sends goes straight in
 
 ## The rest of this course
 
-- **Part 3:** A calculator server with FastMCP, and clients for stdio, SSE and Streamable HTTP.
-- **Part 4:** A host that connects an OpenAI model to an MCP server (the loop in section 8).
-- **Part 5:** MCP and plain function calling, side by side.
-- **Part 6:** Running the server in Docker.
-- **Part 7:** Lifecycle management: Starting, running and closing servers and clients cleanly.
+- **Part 2:** A calculator server with FastMCP, and clients for stdio, Streamable HTTP and SSE.
+- **Part 3:** A host that connects an OpenAI model to an MCP server (the loop in section 8).
+- **Part 4:** MCP and plain function calling, side by side.
+- **Part 5:** Running the server in Docker.
+- **Part 6:** Lifecycle management: Starting, running and closing servers and clients cleanly.
+
+There's also `../../mcp_filesystem_client`: A Python client for the official Node.js filesystem server, which shows a client using a server someone else wrote.
 
 ---
 
 ## Appendix: What changes in mcp 2.x and the 2026-07-28 spec
 
-> **Read this last.** Come back to it only after you've learned MCP from this file and worked through the whole folder (Parts 3 to 7). Everything above, and all the course code, uses mcp 1.27.0, which speaks protocol 2025-11-25.
+> **Read this last.** Come back to it only after you've learned MCP from this file and worked through the whole folder (Parts 2 to 6). Everything above, and all the course code, uses mcp 1.27.0, which speaks protocol 2025-11-25.
 
 Two separate things changed, and it helps to keep them apart:
 
