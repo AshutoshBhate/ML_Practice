@@ -94,7 +94,7 @@ Goal: Build the basic RAG pipeline, put it inside an agent, and serve it as an A
 33. **The full basic pipeline:** [RAG_1-4_Indexing_Retrieval_Generation.ipynb](RAG/Tutorial/RAG_1-4_Indexing_Retrieval_Generation.ipynb). Load, split (`RecursiveCharacterTextSplitter`), embed (`OpenAIEmbeddings`), store (Qdrant), retrieve, generate, and LCEL (the `|` syntax that chains the steps).
 34. **RAG inside an agent:** [Agent_V_RAG.py](LangGraph/Agents/Agent_V_RAG.py). The Phase 5 agent loop with a retriever tool over a PDF stored in Chroma. Here the tools run by hand through `tools_dict` instead of `ToolNode`.
 35. **Mini project, full pipeline:** [Notebook.ipynb](RAG/My_Codes/API_Documentation_Helper/Notebook.ipynb). `WebBaseLoader`, splitting by tiktoken tokens, Qdrant as the vector store, and an LCEL chain.
-36. **Naive RAG as an API:** [naive-rag-api/models.py](RAG/FastAPI/naive-rag-api/models.py), then [rag.py](RAG/FastAPI/naive-rag-api/rag.py), then [main.py](RAG/FastAPI/naive-rag-api/main.py). Iteration 2 turned into a service: a `NaiveRAG` class builds the Qdrant store when the app starts, and `POST /ask` answers questions.
+36. **Naive RAG as an API:** [Naive_RAG/pydantic_models.py](RAG/My_Codes/Naive_RAG/pydantic_models.py), then [rag.py](RAG/My_Codes/Naive_RAG/rag.py), then [main.py](RAG/My_Codes/Naive_RAG/main.py). The mini project's notebook turned into a service: a `NaiveRAG` class builds the Qdrant store when the app starts, and `POST /ask` answers questions.
 
 After Phase 6 you can explain: Every stage of the pipeline, how to put retrieval inside an agent, and how to serve RAG with FastAPI. You can also say what naive RAG lacks: nothing checks whether the retrieved documents are any good.
 
@@ -109,7 +109,7 @@ Goal: Know the techniques that fix naive RAG, and build Self-RAG with LangGraph.
 39. **Better indexes:** [RAG_12-14 Indexing](<RAG/Tutorial/RAG_12-14_(Indexing)_Multi-RepresentationIndexing_RAPTOR_ColBERT.ipynb>). Multi-representation indexing, RAPTOR (explained, with no code) and ColBERT. The ColBERT cells didn't run, so the notebook falls back to a normal retriever there.
 40. **Better retrieval and generation:** [RAG_15-18 Retrieval and Generation](<RAG/Tutorial/RAG_15-18_(Retrieval_Generation)_Retrieval_Re-Ranking_Generation.ipynb>). RAG-Fusion again, Cohere re-ranking, and links to LangChain's CRAG and Self-RAG notebooks and to a talk on the impact of long context. Self-RAG is built for real in item 42.
 41. **The concept diagrams:** [Tutorial/Images/](RAG/Tutorial/Images/). Seventeen diagrams, one per technique. Use them as your mental models for interviews.
-42. **Self-RAG as an API (your most important file):** [self-rag-langgraph/models.py](RAG/FastAPI/self-rag-langgraph/models.py), then [rag.py](RAG/FastAPI/self-rag-langgraph/rag.py), then [main.py](RAG/FastAPI/self-rag-langgraph/main.py). An `AdvancedSelfRAG` LangGraph graph: retrieve, grade each document with the `GradeDocuments` structured output, then either generate or rewrite the question and retrieve again. A `rewrite_count` in the state caps the retries. It matches the Bitwise internship bullet point.
+42. **Self-RAG as an API (your most important file):** [Self_RAG/pydantic_models.py](RAG/My_Codes/Self_RAG/pydantic_models.py), then [rag.py](RAG/My_Codes/Self_RAG/rag.py), then [main.py](RAG/My_Codes/Self_RAG/main.py). An `AdvancedSelfRAG` LangGraph graph: retrieve, grade each document with the `GradeDocuments` structured output, then either generate or rewrite the question and retrieve again. A `rewrite_count` in the state caps the retries. It matches the Bitwise internship bullet point.
 
 After Phase 7 you can explain: Five query-translation techniques, routing, RAPTOR and ColBERT, re-ranking, CRAG and Self-RAG, and how the Self-RAG API fixes naive RAG.
 
@@ -157,7 +157,7 @@ Tick each one once you can explain it out loud without looking.
 **RAG**
 - [ ] What RAG is, and the pipeline: load, split, embed, store, retrieve, generate ([RAG_1-4](RAG/Tutorial/RAG_1-4_Indexing_Retrieval_Generation.ipynb))
 - [ ] Multi-Query, RAG-Fusion and HyDE ([RAG_5-9](<RAG/Tutorial/RAG_5-9_(QueryTranslation)_MultiQueryTranslation_RAG-Fusion_Decompostion.ipynb>))
-- [ ] Self-RAG: grading documents and rewriting the question in a loop ([self-rag-langgraph/rag.py](RAG/FastAPI/self-rag-langgraph/rag.py))
+- [ ] Self-RAG: grading documents and rewriting the question in a loop ([Self_RAG/rag.py](RAG/My_Codes/Self_RAG/rag.py))
 
 **RL**
 - [ ] What preference-based RL is ([CartPole-v1/](ReinforcementLearning/Bitwise_Work/CartPole-v1/))

@@ -3,3 +3,4 @@
 codebase_walkthrough.md
 **/chroma_db/
 LangGraph/Agents/*.txt
+**/__pycache__/

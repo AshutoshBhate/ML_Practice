@@ -17,7 +17,7 @@ class NaiveRAG:
         self.collection_name = "cohere_docs"
 
     def initialize(self):
-        embeddings_model = OpenAIEmbeddings()
+        embeddings_model = OpenAIEmbeddings(model="text-embedding-3-small")
 
         if os.path.exists(self.db_path):
             print("Found existing database on disk. Skipping scraping")
@@ -41,7 +41,7 @@ class NaiveRAG:
             ]
             loader = WebBaseLoader(
                 web_paths=target_urls,
-                bs_kwargs=dict(parse_only=bs4.SoupStrainer("main"))
+                bs_kwargs=dict(parse_only=bs4.SoupStrainer("article"))
             )
             docs = loader.load()
 

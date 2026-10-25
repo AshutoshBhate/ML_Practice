@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from dotenv import load_dotenv
 
-from models import QueryRequest, QueryResponse
+from pydantic_models import QueryRequest, QueryResponse
 from rag import rag_engine
 
 # Load environment variables
@@ -25,7 +25,7 @@ async def greet():
     return {"message": "Welcome to the error free RAG API"}
 
 @app.post("/ask", response_model=QueryResponse)
-async def ask_question(request: QueryRequest):
+def ask_question(request: QueryRequest):
     try:
         # Pass the question to our RAG engine
         answer = rag_engine.ask(request.question)
