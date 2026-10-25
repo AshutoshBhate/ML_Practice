@@ -90,8 +90,8 @@ After Phase 5 you can explain: The ReAct pattern, what `bind_tools()` and `ToolN
 
 Goal: Build the basic RAG pipeline, put it inside an agent, and serve it as an API.
 
-32. **The big picture:** [Advanced_RAG_Pipeline.png](RAG/Architecture_Diagram/Advanced_RAG_Pipeline.png). Look at it first and come back to it after each later step.
-33. **The full basic pipeline:** [RAG_1-4_Indexing_Retrieval_Generation.ipynb](RAG/My_Codes/Tutorial/RAG_1-4_Indexing_Retrieval_Generation.ipynb). Load, split (`RecursiveCharacterTextSplitter`), embed (`OpenAIEmbeddings`), store (Chroma), retrieve, generate, and LCEL (the `|` syntax that chains the steps).
+32. **The big picture:** [Advanced_RAG_Pipeline.png](RAG/Main_ArchitectureDiagram/Advanced_RAG_Pipeline.png). Look at it first and come back to it after each later step.
+33. **The full basic pipeline:** [RAG_1-4_Indexing_Retrieval_Generation.ipynb](RAG/Tutorial/RAG_1-4_Indexing_Retrieval_Generation.ipynb). Load, split (`RecursiveCharacterTextSplitter`), embed (`OpenAIEmbeddings`), store (Qdrant), retrieve, generate, and LCEL (the `|` syntax that chains the steps).
 34. **RAG inside an agent:** [Agent_V_RAG.py](LangGraph/Agents/Agent_V_RAG.py). The Phase 5 agent loop with a retriever tool over a PDF stored in Chroma. Here the tools run by hand through `tools_dict` instead of `ToolNode`.
 35. **Mini project, first try:** [Iteration_1.ipynb](RAG/My_Codes/API_Documentation_Helper/Iteration_1.ipynb). Different ways to load web pages: `PlaywrightURLLoader`, then the Jina Reader API.
 36. **Mini project, full pipeline:** [Iteration_2.ipynb](RAG/My_Codes/API_Documentation_Helper/Iteration_2.ipynb). `WebBaseLoader`, splitting by tiktoken tokens, Qdrant as the vector store, and an LCEL chain.
@@ -105,11 +105,11 @@ After Phase 6 you can explain: Every stage of the pipeline, how to put retrieval
 
 Goal: Know the techniques that fix naive RAG, and build Self-RAG with LangGraph.
 
-38. **Better queries:** [RAG_5-9 Query Translation](<RAG/My_Codes/Tutorial/RAG_5-9_(QueryTranslation)_MultiQueryTranslation_RAG-Fusion_Decompostion.ipynb>). Multi-Query, RAG-Fusion (with reciprocal rank fusion), Decomposition (recursive and individual), Step-Back and HyDE.
-39. **Picking the source:** [RAG_10-11 Routing and Query Construction](<RAG/My_Codes/Tutorial/RAG_10-11_(Routing_QueryConstruction)_Logical&SemanticRouting_QueryConstruction.ipynb>). Logical routing (the LLM picks the data source), semantic routing (embedding similarity picks it) and query construction (turning a question into a structured query or metadata filter).
-40. **Better indexes:** [RAG_12-14 Indexing](<RAG/My_Codes/Tutorial/RAG_12-14_(Indexing)_Multi-RepresentationIndexing_RAPTOR_ColBERT.ipynb>). Multi-representation indexing, RAPTOR and ColBERT. The ColBERT cells didn't run, so the notebook falls back to a normal retriever there.
-41. **Better retrieval and generation:** [RAG_15-18 Retrieval and Generation](<RAG/My_Codes/Tutorial/RAG_15-18_(Retrieval_Generation)_Retrieval_Re-Ranking_Generation.ipynb>). Cohere re-ranking, CRAG and Self-RAG (both built with LangGraph), and the impact of long context.
-42. **The concept diagrams:** [Tutorial/Images/](RAG/My_Codes/Tutorial/Images/). Seventeen diagrams, one per technique. Use them as your mental models for interviews.
+38. **Better queries:** [RAG_5-9 Query Translation](<RAG/Tutorial/RAG_5-9_(QueryTranslation)_MultiQueryTranslation_RAG-Fusion_Decompostion.ipynb>). Multi-Query, RAG-Fusion (with reciprocal rank fusion), Decomposition (recursive and individual), Step-Back and HyDE.
+39. **Picking the source:** [RAG_10-11 Routing and Query Construction](<RAG/Tutorial/RAG_10-11_(Routing_QueryConstruction)_Logical&SemanticRouting_QueryConstruction.ipynb>). Logical routing (the LLM picks the data source), semantic routing (embedding similarity picks it) and query construction (turning a question into a structured query or metadata filter).
+40. **Better indexes:** [RAG_12-14 Indexing](<RAG/Tutorial/RAG_12-14_(Indexing)_Multi-RepresentationIndexing_RAPTOR_ColBERT.ipynb>). Multi-representation indexing, RAPTOR (explained, with no code) and ColBERT. The ColBERT cells didn't run, so the notebook falls back to a normal retriever there.
+41. **Better retrieval and generation:** [RAG_15-18 Retrieval and Generation](<RAG/Tutorial/RAG_15-18_(Retrieval_Generation)_Retrieval_Re-Ranking_Generation.ipynb>). RAG-Fusion again, Cohere re-ranking, and links to LangChain's CRAG and Self-RAG notebooks and to a talk on the impact of long context. Self-RAG is built for real in item 43.
+42. **The concept diagrams:** [Tutorial/Images/](RAG/Tutorial/Images/). Seventeen diagrams, one per technique. Use them as your mental models for interviews.
 43. **Self-RAG as an API (your most important file):** [self-rag-langgraph/models.py](RAG/FastAPI/self-rag-langgraph/models.py), then [rag.py](RAG/FastAPI/self-rag-langgraph/rag.py), then [main.py](RAG/FastAPI/self-rag-langgraph/main.py). An `AdvancedSelfRAG` LangGraph graph: retrieve, grade each document with the `GradeDocuments` structured output, then either generate or rewrite the question and retrieve again. A `rewrite_count` in the state caps the retries. It matches the Bitwise internship bullet point.
 
 After Phase 7 you can explain: Five query-translation techniques, routing, RAPTOR and ColBERT, re-ranking, CRAG and Self-RAG, and how the Self-RAG API fixes naive RAG.
@@ -156,8 +156,8 @@ Tick each one once you can explain it out loud without looking.
 - [ ] The ReAct pattern, `bind_tools()` and `ToolNode` ([Agent_III_ReActAgent.py](LangGraph/Agents/Agent_III_ReActAgent.py))
 
 **RAG**
-- [ ] What RAG is, and the pipeline: load, split, embed, store, retrieve, generate ([RAG_1-4](RAG/My_Codes/Tutorial/RAG_1-4_Indexing_Retrieval_Generation.ipynb))
-- [ ] Multi-Query, RAG-Fusion and HyDE ([RAG_5-9](<RAG/My_Codes/Tutorial/RAG_5-9_(QueryTranslation)_MultiQueryTranslation_RAG-Fusion_Decompostion.ipynb>))
+- [ ] What RAG is, and the pipeline: load, split, embed, store, retrieve, generate ([RAG_1-4](RAG/Tutorial/RAG_1-4_Indexing_Retrieval_Generation.ipynb))
+- [ ] Multi-Query, RAG-Fusion and HyDE ([RAG_5-9](<RAG/Tutorial/RAG_5-9_(QueryTranslation)_MultiQueryTranslation_RAG-Fusion_Decompostion.ipynb>))
 - [ ] Self-RAG: grading documents and rewriting the question in a loop ([self-rag-langgraph/rag.py](RAG/FastAPI/self-rag-langgraph/rag.py))
 
 **RL**
