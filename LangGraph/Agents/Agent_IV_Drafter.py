@@ -8,10 +8,7 @@ from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
 import os
 
-base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-env_path = os.path.join(base_dir, ".env")
-
-load_dotenv(dotenv_path=env_path, override=True)
+load_dotenv()
 
 # This is the global variable to store document content
 document_content = ""
@@ -42,15 +39,17 @@ def save(filename: str) -> str:
     if not filename.endswith('.txt'):
         filename = f"{filename}.txt"
 
+    file_path = os.path.join(os.path.dirname(__file__), filename)
+
     try:
-        with open(filename, 'w') as file:
+        with open(file_path, 'w') as file:
             file.write(document_content)
         print(f"\n Document has been saved to: {filename}")
         return f"Document has been saved successfully to '{filename}'."
-    
+
     except Exception as e:
         return f"Error saving document: {str(e)}"
-    
+
 
 tools = [update, save]
 
@@ -59,11 +58,11 @@ model = ChatOpenAI(model="gpt-4o-mini").bind_tools(tools)
 def our_agent(state: AgentState) -> AgentState:
     system_prompt = SystemMessage(content=f"""
     You are Drafter, a helpful writing assistant. You are going to help the user update and modify documents.
-    
+
     - If the user wants to update or modify content, use the 'update' tool with the complete updated content.
     - If the user wants to save and finish, you need to use the 'save' tool.
     - Make sure to always show the current document state after modifications.
-    
+
     The current document content is:{document_content}
     """)
 
@@ -75,7 +74,6 @@ def our_agent(state: AgentState) -> AgentState:
         user_message = HumanMessage(content=user_input)
         messages_to_pass.append(user_message)
     elif isinstance(messages_to_pass[-1], ToolMessage):
-        # We just executed a tool, let the AI interpret it before asking for more user input
         pass
     else:
         user_input = input("\nWhat would you like to do with the document? ")
@@ -88,10 +86,9 @@ def our_agent(state: AgentState) -> AgentState:
     response = model.invoke(all_messages)
 
     print(f"\n AI: {response.content}")
-    if hasattr(response, "tool_calls") and response.tool_calls:
+    if response.tool_calls:
         print(f" USING TOOLS: {[tc['name'] for tc in response.tool_calls]}")
 
-    # LangGraph's add_messages naturally appends to the state, so we just return the updates
     if user_message:
         return {"messages": [user_message, response]}
     else:
@@ -100,29 +97,17 @@ def our_agent(state: AgentState) -> AgentState:
 def should_continue(state: AgentState) -> str:
     """Determine if we should continue or end the conversation."""
 
-    messages = state["messages"]
-    
-    if not messages:
-        return "continue"
-    
-    # This looks for the most recent tool message....
-    for message in reversed(messages):
-        # ... and checks if this is a ToolMessage resulting from save
-        if (isinstance(message, ToolMessage) and 
-            "saved" in str(message.content).lower() and
-            "document" in str(message.content).lower()):
-            return "end" # goes to the end edge which leads to the endpoint
-        
+    last_message = state["messages"][-1]
+
+    if last_message.name == "save" and "saved successfully" in last_message.content:
+        return "end"
+
     return "continue"
 
 def print_messages(messages):
     """Function I made to print the messages in a more readable format"""
-    if not messages:
-        return
-    
-    for message in messages[-3:]:
-        if isinstance(message, ToolMessage):
-            print(f"\n TOOL RESULT: {message.content}")
+    if messages and isinstance(messages[-1], ToolMessage):
+        print(f"\n TOOL RESULT: {messages[-1].content}")
 
 
 graph = StateGraph(AgentState)
@@ -146,7 +131,7 @@ graph.add_conditional_edges(
     should_use_tools,
     {
         "tools": "tools",
-        "ask_user": "agent",  # Route back to agent node to ask for user input
+        "ask_user": "agent",
     },
 )
 
@@ -163,13 +148,13 @@ app = graph.compile()
 
 def run_document_agent():
     print("\n ===== DRAFTER =====")
-    
+
     state = AgentState(messages=[])
-    
+
     for step in app.stream(state, stream_mode="values"):
         if "messages" in step:
             print_messages(step["messages"])
-    
+
     print("\n ===== DRAFTER FINISHED =====")
 
 if __name__ == "__main__":

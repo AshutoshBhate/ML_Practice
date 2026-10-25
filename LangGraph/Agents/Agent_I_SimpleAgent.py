@@ -1,16 +1,10 @@
-# Doesn't remember what we had said. As the APIs are different
-
-from typing import Dict, List, TypedDict
+from typing import List, TypedDict
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END
 from dotenv import load_dotenv
-import os
 
-base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-env_path = os.path.join(base_dir, ".env")
-
-load_dotenv(dotenv_path=env_path, override=True)
+load_dotenv()
 
 class AgentState(TypedDict):
     messages: List[HumanMessage]

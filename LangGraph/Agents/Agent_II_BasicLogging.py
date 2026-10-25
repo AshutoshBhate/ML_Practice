@@ -1,21 +1,14 @@
-# We'll build an agent that remembers what we said in the previous prompts
-# Chatbot with memory
-# To create a form of memory for our Agent
-
-from typing import Dict, List, TypedDict, Union
+from typing import List, TypedDict, Union
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END
 from dotenv import load_dotenv
 import os
 
-base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-env_path = os.path.join(base_dir, ".env")
-
-load_dotenv(dotenv_path=env_path, override=True)
+load_dotenv()
 
 class AgentState(TypedDict):
-    messages: List[Union[HumanMessage, AIMessage]]  # HumanMessage and AIMessage are datatypes in LangChain and LangGraph
+    messages: List[Union[HumanMessage, AIMessage]]
 
 
 llm = ChatOpenAI(model= "gpt-4o-mini")
@@ -48,16 +41,15 @@ while user_input != "exit":
     conversation_history = result["messages"]
     user_input = input("Enter: ")
 
-# One disadvantage of this setup is that after we exit, the memory is essentially
-# wiped off. We tackle this by introducing a .txt file
+log_path = os.path.join(os.path.dirname(__file__), "logging.txt")
 
-with open("logging.txt", "w") as file:
-    file.write("Your Converstaion Log:\n")
+with open(log_path, "w") as file:
+    file.write("Your Conversation Log:\n")
     for message in conversation_history:
         if isinstance(message, HumanMessage):
             file.write(f"You: {message.content}\n")
         elif isinstance(message, AIMessage):
             file.write(f"AI: {message.content}\n\n")
-    file.write("End of Converstaion")
+    file.write("End of Conversation")
 
 print("Conversation saved to logging.txt")

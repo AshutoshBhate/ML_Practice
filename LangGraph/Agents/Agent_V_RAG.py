@@ -3,83 +3,56 @@ import os
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, Annotated, Sequence
 from langchain_core.messages import BaseMessage, AIMessage, SystemMessage, HumanMessage, ToolMessage
-from operator import add as add_messages
+from langgraph.graph.message import add_messages
 from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_core.tools import tool
-import os
 
-base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-env_path = os.path.join(base_dir, ".env")
+load_dotenv()
 
-load_dotenv(dotenv_path=env_path, override=True)
+llm = ChatOpenAI(model="gpt-4o-mini", temperature = 0)
 
-llm = ChatOpenAI(
-    model="gpt-4o-mini", temperature = 0) # I want to minimize hallucination - temperature = 0 makes the model output more deterministic 
-
-# Our Embedding Model - has to also be compatible with the LLM
 embeddings = OpenAIEmbeddings(
     model="text-embedding-3-small",
 )
 
-
-pdf_path = "Stock_Market_Performance_2024.pdf"
-
-
-# Safety measure I have put for debugging purposes :)
-if not os.path.exists(pdf_path):
-    raise FileNotFoundError(f"PDF file not found: {pdf_path}")
-
-pdf_loader = PyPDFLoader(pdf_path) # This loads the PDF
-
-# Checks if the PDF is there
-try:
-    pages = pdf_loader.load()
-    print(f"PDF has been loaded and has {len(pages)} pages")
-except Exception as e:
-    print(f"Error loading PDF: {e}")
-    raise
-
-# Chunking Process
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1000,
-    chunk_overlap=200
-)
-
-
-pages_split = text_splitter.split_documents(pages) # We now apply this to our pages
-
-persist_directory = r"C:\Vaibhav\LangGraph_Book\LangGraphCourse\Agents"
+folder = os.path.dirname(__file__)
+pdf_path = os.path.join(folder, "Stock_Market_Performance_2024.pdf")
+persist_directory = os.path.join(folder, "chroma_db")
 collection_name = "stock_market"
 
-# If our collection does not exist in the directory, we create using the os command
-if not os.path.exists(persist_directory):
-    os.makedirs(persist_directory)
+if os.path.exists(persist_directory):
+    vectorstore = Chroma(
+        collection_name=collection_name,
+        embedding_function=embeddings,
+        persist_directory=persist_directory,
+    )
+    print("Loaded the existing ChromaDB vector store!")
 
+else:
+    pdf_loader = PyPDFLoader(pdf_path)
+    pages = pdf_loader.load()
+    print(f"PDF has been loaded and has {len(pages)} pages")
 
-try:
-    # Here, we actually create the chroma database using our embeddigns model
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=200
+    )
+    pages_split = text_splitter.split_documents(pages)
+
     vectorstore = Chroma.from_documents(
         documents=pages_split,
         embedding=embeddings,
         persist_directory=persist_directory,
         collection_name=collection_name
     )
-    print(f"Created ChromaDB vector store!")
-    
-except Exception as e:
-    print(f"Error setting up ChromaDB: {str(e)}")
-    raise
+    print("Created ChromaDB vector store!")
 
 
-# Now we create our retriever 
-retriever = vectorstore.as_retriever(
-    search_type="similarity",
-    search_kwargs={"k": 5} # K is the amount of chunks to return
-)
+retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
 
 @tool
 def retriever_tool(query: str) -> str:
@@ -91,11 +64,11 @@ def retriever_tool(query: str) -> str:
 
     if not docs:
         return "I found no relevant information in the Stock Market Performance 2024 document."
-    
+
     results = []
     for i, doc in enumerate(docs):
         results.append(f"Document {i+1}:\n{doc.page_content}")
-    
+
     return "\n\n".join(results)
 
 
@@ -121,9 +94,8 @@ Please always cite the specific parts of the documents you use in your answers.
 """
 
 
-tools_dict = {our_tool.name: our_tool for our_tool in tools} # Creating a dictionary of our tools
+tools_dict = {our_tool.name: our_tool for our_tool in tools}
 
-# LLM Agent
 def call_llm(state: AgentState) -> AgentState:
     """Function to call the LLM with the current state."""
     messages = list(state['messages'])
@@ -132,25 +104,23 @@ def call_llm(state: AgentState) -> AgentState:
     return {'messages': [message]}
 
 
-# Retriever Agent
 def take_action(state: AgentState) -> AgentState:
     """Execute tool calls from the LLM's response."""
 
-    tool_calls = state['messages'][-1].tool_calls  # type: ignore[union-attr]
+    tool_calls = state['messages'][-1].tool_calls
     results = []
     for t in tool_calls:
         print(f"Calling Tool: {t['name']} with query: {t['args'].get('query', 'No query provided')}")
-        
-        if not t['name'] in tools_dict: # Checks if a valid tool is present
+
+        if not t['name'] in tools_dict:
             print(f"\nTool: {t['name']} does not exist.")
             result = "Incorrect Tool Name, Please Retry and Select tool from List of Available tools."
-        
-        else:
-            result = tools_dict[t['name']].invoke(t['args'].get('query', ''))
-            print(f"Result length: {len(str(result))}")
-            
 
-        # Appends the Tool Message
+        else:
+            result = tools_dict[t['name']].invoke(t['args'])
+            print(f"Result length: {len(str(result))}")
+
+
         results.append(ToolMessage(tool_call_id=t['id'], name=t['name'], content=str(result)))
 
     print("Tools Execution Complete. Back to the model!")
@@ -174,16 +144,16 @@ rag_agent = graph.compile()
 
 def running_agent():
     print("\n=== RAG AGENT===")
-    
+
     while True:
         user_input = input("\nWhat is your question: ")
         if user_input.lower() in ['exit', 'quit']:
             break
-            
-        messages = [HumanMessage(content=user_input)] # converts back to a HumanMessage type
+
+        messages = [HumanMessage(content=user_input)]
 
         result = rag_agent.invoke({"messages": messages})
-        
+
         print("\n=== ANSWER ===")
         print(result['messages'][-1].content)
 

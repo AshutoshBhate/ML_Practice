@@ -1,3 +1,5 @@
 **/.env
 **/qdrant_db/
 codebase_walkthrough.md
+**/chroma_db/
+LangGraph/Agents/*.txt
