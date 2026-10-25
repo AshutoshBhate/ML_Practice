@@ -1,6 +1,6 @@
 # A YouTube transcript MCP server
 
-`server.py` offers one tool, `get_transcript`. Give it a YouTube link or video ID, and it returns the video's captions as plain text, so a host like Claude Desktop can summarize a video without you watching it. It's based on a tutorial and rewritten in this repo's style. The notebook `youtube.ipynb` explains it, with real output.
+`server.py` offers one tool, `get_transcript`. Give it a YouTube link or video ID, and it returns the video's captions as plain text, so a host like Claude Desktop can summarize a video without you watching it. It's based on a tutorial and rewritten in this repo's style. The notebook `Implementation_Details.ipynb` explains it, with real output.
 
 ## Files
 
@@ -25,7 +25,7 @@ These steps aren't run here. Use full paths, because these hosts start the serve
 **Claude Code:**
 
 ```bash
-claude mcp add youtube -- C:\Users\ashut\anaconda3\envs\MCP_env\python.exe C:\Users\ashut\ML_Practice\MCP\servers\youtube\server.py
+claude mcp add youtube -- C:\Users\ashut\anaconda3\envs\MCP_env\python.exe C:\Users\ashut\ML_Practice\MCP\projects\youtube\server.py
 claude mcp list
 ```
 
@@ -36,7 +36,7 @@ claude mcp list
   "mcpServers": {
     "youtube": {
       "command": "C:\\Users\\ashut\\anaconda3\\envs\\MCP_env\\python.exe",
-      "args": ["C:\\Users\\ashut\\ML_Practice\\MCP\\servers\\youtube\\server.py"]
+      "args": ["C:\\Users\\ashut\\ML_Practice\\MCP\\projects\\youtube\\server.py"]
     }
   }
 }

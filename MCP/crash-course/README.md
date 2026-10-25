@@ -14,7 +14,8 @@
 Also in the `MCP` folder:
 
 - **[mcp_filesystem_client](../mcp_filesystem_client/README.md):** A Python client for the official Node.js filesystem server.
-- **[servers/youtube](../servers/youtube/README.md):** A YouTube transcript server, rewritten from a tutorial.
+- **[projects/youtube](../projects/youtube/README.md):** A YouTube transcript server, rewritten from a tutorial.
+- **[projects/timezone](../projects/timezone/README.md):** My own server: A time zone converter with a tool, a resource and a prompt, over Streamable HTTP and in Docker.
 
 ## Setup
 
@@ -32,7 +33,7 @@ A few parts need one more thing:
 
 - **Part 5:** Docker Desktop.
 - **mcp_filesystem_client:** Node.js, for `npx`.
-- **servers/youtube:** `pip install youtube-transcript-api==1.2.4`.
+- **projects/youtube:** `pip install youtube-transcript-api==1.2.4`.
 
 ## Resources
 
