@@ -5,7 +5,7 @@
 ## The parts
 
 1. **[Understanding MCP](./1-understanding-mcp/README.md):** What MCP is, the host, client and server, tools, resources and prompts, the JSON-RPC messages and the transports. Its appendix covers the 2026-07-28 spec and mcp 2.x.
-2. **[A simple server and its clients](./2-simple-server-setup/README.md):** A calculator server, with a client for stdio, Streamable HTTP and SSE.
+2. **[A simple server and its clients](./2-server-stdio-http-sse/README.md):** A calculator server, with a client for stdio, Streamable HTTP and SSE.
 3. **[An OpenAI model using MCP tools](./3-openai-integration/README.md):** A host that hands an MCP server's tools to an OpenAI model.
 4. **[MCP vs plain function calling](./4-mcp-vs-function-calling/README.md):** The same tool, used both ways.
 5. **[Running the server in Docker](./5-run-with-docker/README.md):** The server in a container, over Streamable HTTP.
@@ -13,7 +13,7 @@
 
 Also in the `MCP` folder:
 
-- **[mcp_filesystem_client](../mcp_filesystem_client/README.md):** A Python client for the official Node.js filesystem server.
+- **[stdio-npm-filesystem-server](../stdio-npm-filesystem-server/README.md):** A Python client for the official Node.js filesystem server.
 - **[projects/youtube](../projects/youtube/README.md):** A YouTube transcript server, rewritten from a tutorial.
 - **[projects/timezone](../projects/timezone/README.md):** My own server: A time zone converter with a tool, a resource and a prompt, over Streamable HTTP and in Docker.
 
@@ -32,7 +32,7 @@ pip install -r requirements.txt
 A few parts need one more thing:
 
 - **Part 5:** Docker Desktop.
-- **mcp_filesystem_client:** Node.js, for `npx`.
+- **stdio-npm-filesystem-server:** Node.js, for `npx`.
 - **projects/youtube:** `pip install youtube-transcript-api==1.2.4`.
 
 ## Resources

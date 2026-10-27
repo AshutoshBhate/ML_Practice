@@ -1,9 +1,5 @@
-class Dog:
-    def __init__(self, name): self.name = name
+x = [2, 3, 4]
 
-def make_dog():
-    return Dog("Rex")      # a function whose last act is to build an instance and return it
+y = [x[i] + 2 for i in range(len(x))]
 
-d = make_dog()             # d is a Dog. The function was just the delivery van.
-
-print(d.name)
+print(y)

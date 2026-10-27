@@ -369,13 +369,19 @@ An MCP server can run code and read data, and whatever it sends goes straight in
 
 ## The rest of this course
 
-- **Part 2:** A calculator server with FastMCP, and clients for stdio, Streamable HTTP and SSE.
-- **Part 3:** A host that connects an OpenAI model to an MCP server (the loop in section 8).
-- **Part 4:** MCP and plain function calling, side by side.
-- **Part 5:** Running the server in Docker.
-- **Part 6:** Lifecycle management: Starting, running and closing servers and clients cleanly.
+- **Part 2:** A calculator server with FastMCP, and clients for stdio, Streamable HTTP and SSE. It's the only part with all three transports: The stdio client starts the server itself as its child process, and for the other two you start the server in a terminal and the client reaches it at `127.0.0.1:8050`.
+- **Part 3:** A host that connects an OpenAI model to an MCP server (the loop in section 8). Over stdio: The host starts the server as its child process.
+- **Part 4:** MCP and plain function calling, side by side. The MCP side runs over stdio.
+- **Part 5:** Running the server in Docker. Over Streamable HTTP: The server runs in a container on your laptop, and the client reaches it at `127.0.0.1:8050`.
+- **Part 6:** Lifecycle management: Starting, running and closing servers and clients cleanly. Over stdio.
 
-There's also `../../mcp_filesystem_client`: A Python client for the official Node.js filesystem server, which shows a client using a server someone else wrote.
+The `MCP` folder has three more folders next to the course:
+
+- **`../../stdio-npm-filesystem-server`:** A Python client for the official Node.js filesystem server, which shows a client using a server someone else wrote. Over stdio: `npx` downloads the server's code from npm once, then the client starts it on your laptop as its child process.
+- **`../../projects/youtube`:** A YouTube transcript server, rewritten from a tutorial. It has one tool, `get_transcript`, runs over stdio, and its README shows how to add it to Claude Code or Claude Desktop. The tool fetches transcripts from YouTube, but the server itself runs on your laptop, as a child of whichever client starts it.
+- **`../../projects/timezone`:** My own server: A time zone converter with one tool, one resource and one prompt, over Streamable HTTP and in Docker. It comes with a host that connects it to an OpenAI model, and a health check in plain `httpx`. Both ways, the server runs on your laptop and the client reaches it at `127.0.0.1:8060`.
+
+So every server here runs on your laptop, in one of two setups: stdio, with the server as the client's child process, or Streamable HTTP, with a server you start yourself. A third setup, a Streamable HTTP server deployed on the web, isn't in this folder yet. The client code stays the same apart from the URL, which becomes a public `https://` address, and the server then needs authentication (section 10).
 
 ---
 
