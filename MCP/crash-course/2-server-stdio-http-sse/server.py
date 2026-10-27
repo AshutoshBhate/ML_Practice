@@ -1,5 +1,4 @@
 import sys
-
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("Calculator", port=8050)

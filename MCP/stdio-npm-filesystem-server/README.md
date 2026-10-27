@@ -10,6 +10,8 @@ The client runs `npx -y @modelcontextprotocol/server-filesystem@2.0.1 <sandbox f
 - **`@2.0.1`** pins the version, so the tools don't change under you.
 - **The sandbox folder** is the only folder the server may touch. A path outside it comes back as an error: "Access denied".
 
+npm only supplies the code. The server itself runs on your laptop, as a child of the client, and the messages go through its stdin and stdout, not over the network.
+
 ## Running it
 
 You need Node.js. Version 2.0.1 of the server asks for Node 24, but it also runs on Node 20 with an npm warning. Run from this folder, with the environment active (`conda activate MCP_env`):
