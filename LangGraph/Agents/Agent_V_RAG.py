@@ -80,7 +80,7 @@ class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
 
 
-def should_continue(state: AgentState):
+def should_continue(state: AgentState) -> bool:
     """Check if the last message contains tool calls."""
     result = state['messages'][-1]
     return isinstance(result, AIMessage) and bool(result.tool_calls)

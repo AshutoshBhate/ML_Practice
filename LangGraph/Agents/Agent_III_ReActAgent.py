@@ -14,19 +14,19 @@ class AgentState(TypedDict):
 
 
 @tool
-def add(a: int, b: int):
+def add(a: int, b: int) -> int:
     """Adds two numbers together"""
 
     return a + b
 
 @tool
-def subtract(a: int, b: int):
+def subtract(a: int, b: int) -> int:
     """Subtracts the second number from the first"""
 
     return a - b
 
 @tool
-def multiply(a: int, b: int):
+def multiply(a: int, b: int) -> int:
     """Multiplies two numbers together"""
 
     return a * b
