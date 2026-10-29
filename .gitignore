@@ -2,5 +2,5 @@
 **/qdrant_db/
 codebase_walkthrough.md
 **/chroma_db/
-LangGraph/Agents/*.txt
+LangGraph/Tutorial (Vaibhav Mehra)/2_Agents/*.txt
 **/__pycache__/

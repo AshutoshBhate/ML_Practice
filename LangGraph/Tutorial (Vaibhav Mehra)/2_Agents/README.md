@@ -26,7 +26,7 @@ you type ──► invoke({"messages": [your message]}) ──► process ──
 
 ---
 
-## Agent II: Memory ([Agent_II_BasicLogging.py](Agent_II_BasicLogging.py))
+## Agent II: Memory ([Agent_II_Memory.py](Agent_II_Memory.py))
 
 **The key point:** It's the same graph as Agent I, but the conversation lives in `conversation_history`, outside the graph. Every turn sends the whole history in and takes the longer history back out, so the model "remembers".
 
@@ -38,10 +38,9 @@ turn 2:  [You1, AI1, You2]    ──► process ──► [You1, AI1, You2, AI2]
 
 - **`Union[HumanMessage, AIMessage]`** (from `typing`): "Either of these types". The list now holds your messages and the model's.
 - **`AIMessage`** (from `langchain_core.messages`): The model's reply, stored next to your messages.
-- **`append(AIMessage(content=response.content))`:** `response` is already an `AIMessage`, but it also carries token counts, the model name and request IDs. Copying only the text into a fresh `AIMessage` keeps the history, and the `CURRENT STATE` print, short.
-- **`print("CURRENT STATE: ", ...)`:** Shows the history growing by two messages each turn.
-- **`logging.txt`:** The memory lives only while the program runs, so it's gone after `exit`. Writing the conversation to `logging.txt` keeps a copy. `isinstance(message, HumanMessage)` checks a message's class, so each line gets "You:" or "AI:".
-- **`os.path.dirname(__file__)`:** Python sets `__file__` to this script's path, and `dirname` cuts off the file name. So `logging.txt` is written next to the script, wherever you run it from. Git ignores it (`LangGraph/Agents/*.txt` in `.gitignore`).
+- **`append(AIMessage(content=response.content))`:** `response` is already an `AIMessage`, but it also carries token counts, the model name and request IDs. Copying only the text into a fresh `AIMessage` keeps the history short.
+- **`print("Messages in state:", len(state["messages"]))`:** `len` counts the messages in the list, so the count grows by two each turn: 2 after the first turn, 4 after the second.
+- **Gone after `exit`:** `conversation_history` is an ordinary Python list, so the memory lives only while the program runs.
 
 ---
 
@@ -67,7 +66,7 @@ START ──► our_agent ──► should_continue ──"continue"──► to
 - **`@tool`** (from `langchain_core.tools`): Turns a Python function into a tool the model can ask for. The function name becomes the tool's name, the type hints become its arguments, and the docstring becomes the description the model reads to decide when to use it. That's why each docstring says exactly what the tool does.
 - **`.bind_tools(tools)`:** Returns a copy of the model that sends the tool descriptions with every request. The model still never runs code. It replies with `tool_calls`: Which tool, with which arguments.
 - **`ToolNode`** (from `langgraph.prebuilt`): A ready-made node. It reads the last message's `tool_calls`, runs each tool, and returns one `ToolMessage` per call.
-- **`should_continue`:** The edge that makes the loop. Only an `AIMessage` has `tool_calls`. If the list isn't empty it returns "continue" (go to tools), otherwise "end". `add_conditional_edges` maps each word to the next node.
+- **`should_continue`:** The edge that makes the loop. Only an `AIMessage` has `tool_calls`, so `isinstance(last_message, AIMessage)` first checks the message's class: It's `True` only if the last message is an `AIMessage`. If its `tool_calls` list isn't empty it returns "continue" (go to tools), otherwise "end". `add_conditional_edges` maps each word to the next node.
 - **`set_entry_point("our_agent")`:** The same as `add_edge(START, "our_agent")`.
 - **`app.stream(inputs, stream_mode="values")`:** Runs the graph like `invoke`, but hands you the full state after every node instead of only at the end. `print_stream` prints the newest message each time with `pretty_print()`, LangChain's readable printout.
   - **Note:** The model asks for `add` and `multiply` in one reply, so `ToolNode` adds two `ToolMessage`s in one step and only the last one (`multiply` → 30) gets printed. The `add` result (55) is still in the state, and the final answer uses both.
@@ -99,7 +98,7 @@ START ──► agent ──► should_use_tools ──"tools"──► tools �
 - **`should_continue`, after the tools:** End only if the last tool was `save` and it said "saved successfully". The name alone isn't enough, because the `try/except` makes a failed save look like a normal message.
 - **`print_messages`:** Prints a tool result when the newest message is one, which happens right after the tools node runs. As in Agent III, only the newest message is printed.
 - **`if __name__ == "__main__":`** Python sets `__name__` to `"__main__"` in the file you run directly. So `run_document_agent()` runs when you start this file, but not if another file imports it.
-- **Where the file goes:** `save` writes next to the script (the same `os.path.dirname(__file__)` as in Agent II), and git ignores it.
+- **`os.path.dirname(__file__)`:** Python sets `__file__` to this script's path, and `dirname` cuts off the file name. So `save` writes the file next to the script, wherever you run it from. Git ignores it (`LangGraph/Tutorial (Vaibhav Mehra)/2_Agents/*.txt` in `.gitignore`).
 
 ---
 
@@ -121,7 +120,7 @@ START ──► llm ──► should_continue ──True──► retriever_agen
 
 - **`temperature=0`:** Makes the model pick its most likely words, so answers vary less and stick closer to the retrieved text. gpt-5 models don't accept it, and LangChain quietly drops it for them.
 - **`OpenAIEmbeddings(model="text-embedding-3-small")`:** Turns text into a list of 1536 numbers, so texts with similar meanings get similar numbers. The rule is to use the same embedding model to store the chunks and to search them. It doesn't have to match the chat model.
-- **`folder = os.path.dirname(__file__)`:** As in Agent II, the PDF and the database are found next to the script, wherever you run it from.
+- **`folder = os.path.dirname(__file__)`:** As in Agent IV, the PDF and the database are found next to the script, wherever you run it from.
 - **`if os.path.exists(persist_directory)`:** Build the store once, then reuse it. Calling `Chroma.from_documents` on a saved folder adds every chunk again, so each later run would return each chunk twice. `chroma_db/` is in `.gitignore`.
 - **`PyPDFLoader(pdf_path).load()`** (from `langchain_community`): One `Document` per PDF page.
 - **`RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)`** (from `langchain_text_splitters`): Splits the pages into chunks of up to 1000 characters. Neighbouring chunks share 200 characters, so a sentence cut at a boundary still appears whole in one of them.

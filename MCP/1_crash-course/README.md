@@ -13,9 +13,9 @@
 
 Also in the `MCP` folder:
 
-- **[stdio-npm-filesystem-server](../stdio-npm-filesystem-server/README.md):** A Python client for the official Node.js filesystem server.
-- **[projects/youtube](../projects/youtube/README.md):** A YouTube transcript server, rewritten from a tutorial.
-- **[projects/timezone](../projects/timezone/README.md):** My own server: A time zone converter with a tool, a resource and a prompt, over Streamable HTTP and in Docker.
+- **[2_stdio-npm-filesystem-localserver](../2_stdio-npm-filesystem-localserver/README.md):** A Python client for the official Node.js filesystem server.
+- **[3_projects/youtube](../3_projects/youtube/README.md):** A YouTube transcript server, rewritten from a tutorial.
+- **[3_projects/timezone](../3_projects/timezone/README.md):** My own server: A time zone converter with a tool, a resource and a prompt, over Streamable HTTP and in Docker.
 
 ## Setup
 
@@ -27,13 +27,13 @@ conda activate MCP_env
 pip install -r requirements.txt
 ```
 
-`requirements.txt` pins mcp 1.27.0 and openai 2.32.0. Parts 3 and 4 call OpenAI, so they need `OPENAI_API_KEY` in `crash-course/.env`. Run each part's commands from that part's folder, and use the MCP_env kernel for the notebooks.
+`requirements.txt` pins mcp 1.27.0 and openai 2.32.0. Parts 3 and 4 call OpenAI, so they need `OPENAI_API_KEY` in `1_crash-course/.env`. Run each part's commands from that part's folder, and use the MCP_env kernel for the notebooks.
 
 A few parts need one more thing:
 
 - **Part 5:** Docker Desktop.
-- **stdio-npm-filesystem-server:** Node.js, for `npx`.
-- **projects/youtube:** `pip install youtube-transcript-api==1.2.4`.
+- **2_stdio-npm-filesystem-localserver:** Node.js, for `npx`.
+- **3_projects/youtube:** `pip install youtube-transcript-api==1.2.4`.
 
 ## Resources
 

@@ -12,7 +12,7 @@ Each script comes as a `.py` for quick lookup and a notebook that explains it st
 
 ## Running it
 
-Run from this folder, with the environment active (`conda activate MCP_env`). The OpenAI key comes from `crash-course/.env`, which `load_dotenv()` finds by searching the folders above.
+Run from this folder, with the environment active (`conda activate MCP_env`). The OpenAI key comes from `1_crash-course/.env`, which `load_dotenv()` finds by searching the folders above.
 
 - `python client-functions-one-question.py` asks one question.
 - `python client-class-many-questions.py` asks three questions over one connection.

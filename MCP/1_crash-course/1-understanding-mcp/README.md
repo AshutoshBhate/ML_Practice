@@ -25,7 +25,7 @@ MCP isn't new technology. It's a new standard for something you've already done:
 
 ## 2. Start from what you know: Function calling
 
-In `LLM_Learning_Sandbox/Workflow_Patterns_Course/1-introduction/3-tools.py` you gave the model a weather tool. That was **function calling**, and it went like this:
+In `LLM_Learning_Sandbox/2_Workflow_Patterns_Course/1-introduction/3-tools.py` you gave the model a weather tool. That was **function calling**, and it went like this:
 
 <pre style="font-size: 0.85em; line-height: 1.35; white-space: pre; overflow-x: auto;">
  your script (3-tools.py)            OpenAI model
@@ -377,9 +377,9 @@ An MCP server can run code and read data, and whatever it sends goes straight in
 
 The `MCP` folder has three more folders next to the course:
 
-- **`../../stdio-npm-filesystem-server`:** A Python client for the official Node.js filesystem server, which shows a client using a server someone else wrote. Over stdio: `npx` downloads the server's code from npm once, then the client starts it on your laptop as its child process.
-- **`../../projects/youtube`:** A YouTube transcript server, rewritten from a tutorial. It has one tool, `get_transcript`, runs over stdio, and its README shows how to add it to Claude Code or Claude Desktop. The tool fetches transcripts from YouTube, but the server itself runs on your laptop, as a child of whichever client starts it.
-- **`../../projects/timezone`:** My own server: A time zone converter with one tool, one resource and one prompt, over Streamable HTTP and in Docker. It comes with a host that connects it to an OpenAI model, and a health check in plain `httpx`. Both ways, the server runs on your laptop and the client reaches it at `127.0.0.1:8060`.
+- **`../../2_stdio-npm-filesystem-localserver`:** A Python client for the official Node.js filesystem server, which shows a client using a server someone else wrote. Over stdio: `npx` downloads the server's code from npm once, then the client starts it on your laptop as its child process.
+- **`../../3_projects/youtube`:** A YouTube transcript server, rewritten from a tutorial. It has one tool, `get_transcript`, runs over stdio, and its README shows how to add it to Claude Code or Claude Desktop. The tool fetches transcripts from YouTube, but the server itself runs on your laptop, as a child of whichever client starts it.
+- **`../../3_projects/timezone`:** My own server: A time zone converter with one tool, one resource and one prompt, over Streamable HTTP and in Docker. It comes with a host that connects it to an OpenAI model, and a health check in plain `httpx`. Both ways, the server runs on your laptop and the client reaches it at `127.0.0.1:8060`.
 
 So every server here runs on your laptop, in one of two setups: stdio, with the server as the client's child process, or Streamable HTTP, with a server you start yourself. A third setup, a Streamable HTTP server deployed on the web, isn't in this folder yet. The client code stays the same apart from the URL, which becomes a public `https://` address, and the server then needs authentication (section 10).
 

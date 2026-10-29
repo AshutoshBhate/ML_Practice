@@ -25,7 +25,7 @@ These steps aren't run here. Use full paths, because these hosts start the serve
 **Claude Code:**
 
 ```bash
-claude mcp add youtube -- C:\Users\ashut\anaconda3\envs\MCP_env\python.exe C:\Users\ashut\ML_Practice\MCP\projects\youtube\server.py
+claude mcp add youtube -- C:\Users\ashut\anaconda3\envs\MCP_env\python.exe C:\Users\ashut\ML_Practice\MCP\3_projects\youtube\server.py
 claude mcp list
 ```
 
@@ -36,7 +36,7 @@ claude mcp list
   "mcpServers": {
     "youtube": {
       "command": "C:\\Users\\ashut\\anaconda3\\envs\\MCP_env\\python.exe",
-      "args": ["C:\\Users\\ashut\\ML_Practice\\MCP\\projects\\youtube\\server.py"]
+      "args": ["C:\\Users\\ashut\\ML_Practice\\MCP\\3_projects\\youtube\\server.py"]
     }
   }
 }
