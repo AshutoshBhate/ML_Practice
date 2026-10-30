@@ -25,4 +25,4 @@ Add two numbers together
 5
 ```
 
-The Streamable HTTP client also prints its session ID first. Over stdio, the server's own log lines appear on the same screen.
+Over stdio, the server's startup line appears on the same screen first.

@@ -2,9 +2,9 @@ import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
-mcp = FastMCP("Timezone", host=os.getenv("HOST", "127.0.0.1"), port=8060)
+mcp = MCPServer("Timezone")
 
 offices = {
     "Pune": "Asia/Kolkata",
@@ -37,4 +37,4 @@ def plan_meeting(date: str, time: str) -> str:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="streamable-http")
+    mcp.run(transport="streamable-http", host=os.getenv("HOST", "127.0.0.1"), port=8060)

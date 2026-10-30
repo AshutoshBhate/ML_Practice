@@ -7,7 +7,7 @@ This folder runs the Part 2 calculator server inside a Docker container, over St
 - **`server.py`:** The calculator server on Streamable HTTP. It listens on `0.0.0.0`, because inside a container `127.0.0.1` would make it unreachable from outside.
 - **`client.py`:** The Part 2 Streamable HTTP client, pointed at `http://127.0.0.1:8050/mcp`.
 - **`Dockerfile`:** Python 3.12 slim, the pinned requirements, then the server.
-- **`requirements.txt`:** `mcp==1.27.0`, plus `pydantic-settings==2.14.0`, which stops a startup warning that newer versions print.
+- **`requirements.txt`:** `mcp==2.3.0`, the version in MCP_env.
 
 ## Running it
 

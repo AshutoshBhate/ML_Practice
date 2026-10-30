@@ -1,7 +1,7 @@
 import sys
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
-mcp = FastMCP("Calculator", port=8050)
+mcp = MCPServer("Calculator")
 
 
 @mcp.tool()
@@ -16,4 +16,4 @@ if __name__ == "__main__":
         transport = sys.argv[1]
 
     print("Calculator server starting with transport:", transport, file=sys.stderr)
-    mcp.run(transport=transport)
+    mcp.run(transport=transport, port=8050)

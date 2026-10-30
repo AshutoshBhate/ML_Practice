@@ -7,7 +7,7 @@ url = "http://127.0.0.1:8050/mcp"
 
 
 async def main():
-    async with streamable_http_client(url) as (read, write, get_session_id):
+    async with streamable_http_client(url) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
 

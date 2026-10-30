@@ -1,8 +1,8 @@
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
 from tools import add
 
-mcp = FastMCP("Calculator")
+mcp = MCPServer("Calculator")
 mcp.add_tool(add)
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # MCP Crash Course for Python Developers
 
-**MCP (Model Context Protocol) is an open standard for connecting LLM apps to tools and data.** This course explains it from zero, then builds servers and clients in Python with the official SDK (mcp 1.27.0). Every script has a notebook next to it that explains it step by step, with real outputs.
+**MCP (Model Context Protocol) is an open standard for connecting LLM apps to tools and data.** This course explains it from zero, then builds servers and clients in Python with the official SDK (mcp 2.3.0). Every script has a notebook next to it that explains it step by step, with real outputs.
 
 ## The parts
 
@@ -27,7 +27,7 @@ conda activate MCP_env
 pip install -r requirements.txt
 ```
 
-`requirements.txt` pins mcp 1.27.0 and openai 2.32.0. Parts 3 and 4 call OpenAI, so they need `OPENAI_API_KEY` in `1_crash-course/.env`. Run each part's commands from that part's folder, and use the MCP_env kernel for the notebooks.
+`requirements.txt` pins mcp 2.3.0 and openai 2.32.0. Parts 3 and 4 call OpenAI, so they need `OPENAI_API_KEY` in `1_crash-course/.env`. Run each part's commands from that part's folder, and use the MCP_env kernel for the notebooks.
 
 A few parts need one more thing:
 
@@ -38,7 +38,7 @@ A few parts need one more thing:
 ## Resources
 
 - [MCP documentation](https://modelcontextprotocol.io)
-- [The spec, version 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25), which mcp 1.27.0 speaks
+- [The spec, version 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25), whose handshake this course's clients use
 - [The spec, version 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28), the newest
 - [Python SDK on GitHub](https://github.com/modelcontextprotocol/python-sdk)
 - [Official servers](https://github.com/modelcontextprotocol/servers)

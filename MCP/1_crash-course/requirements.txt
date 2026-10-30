@@ -1,4 +1,4 @@
-mcp[cli]==1.27.0
+mcp[cli]==2.3.0
 openai==2.32.0
 python-dotenv
 ipykernel

@@ -1,9 +1,9 @@
 import json
 import os
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
-mcp = FastMCP("Knowledge Base")
+mcp = MCPServer("Knowledge Base")
 
 
 @mcp.tool()

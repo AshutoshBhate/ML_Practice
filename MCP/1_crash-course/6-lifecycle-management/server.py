@@ -2,13 +2,13 @@ import sqlite3
 import sys
 from contextlib import asynccontextmanager
 
-from mcp.server.fastmcp import Context, FastMCP
+from mcp.server.mcpserver import Context, MCPServer
 
 
 @asynccontextmanager
 async def lifespan(server):
     print("Startup: Opening the database", file=sys.stderr)
-    db = sqlite3.connect(":memory:")
+    db = sqlite3.connect(":memory:", check_same_thread=False)
     db.execute("CREATE TABLE notes (text TEXT)")
     db.execute("INSERT INTO notes VALUES ('Standup at 10'), ('Demo on Friday')")
 
@@ -19,7 +19,7 @@ async def lifespan(server):
         print("Shutdown: Closed the database", file=sys.stderr)
 
 
-mcp = FastMCP("Notes", lifespan=lifespan)
+mcp = MCPServer("Notes", lifespan=lifespan)
 
 
 @mcp.tool()

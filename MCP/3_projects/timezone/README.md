@@ -1,6 +1,6 @@
 # A time zone MCP server
 
-My own MCP server, written with FastMCP. It offers one of each MCP primitive over Streamable HTTP: A tool that converts a time between time zones (with daylight saving handled), a resource that lists our offices, and a prompt that plans a meeting. It runs locally or in Docker.
+My own MCP server, written with MCPServer from MCP's official Python SDK (mcp 2.x). It offers one of each MCP primitive over Streamable HTTP: A tool that converts a time between time zones (with daylight saving handled), a resource that lists our offices, and a prompt that plans a meeting. It runs locally or in Docker.
 
 ## Files
 

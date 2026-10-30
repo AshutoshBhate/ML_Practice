@@ -1,10 +1,10 @@
 import re
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.formatters import TextFormatter
 
-mcp = FastMCP("YouTube")
+mcp = MCPServer("YouTube")
 api = YouTubeTranscriptApi()
 
 

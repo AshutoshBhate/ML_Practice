@@ -111,12 +111,12 @@ In USB terms: A tool is a button on the device that does something (print). A re
 
 **Goal: A server that offers one of each.**
 
-`FastMCP` is the server class in MCP's official Python SDK (the `mcp` package). `FastMCP("Notes")` creates a server called Notes. The lines starting with `@` are decorators: Each one registers the function under it with the server, as a tool, a resource or a prompt. FastMCP reads the type hints (`a: int`) to build the input schema and the docstring to build the description. That's the same JSON schema you wrote by hand in `3-tools.py`.
+`MCPServer` is the server class in MCP's official Python SDK (the `mcp` package). Before version 2 of the SDK, it was called `FastMCP`. `MCPServer("Notes")` creates a server called Notes. The lines starting with `@` are decorators: Each one registers the function under it with the server, as a tool, a resource or a prompt. MCPServer reads the type hints (`a: int`) to build the input schema and the docstring to build the description. That's the same JSON schema you wrote by hand in `3-tools.py`.
 
 ```python
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
-mcp = FastMCP("Notes")
+mcp = MCPServer("Notes")
 
 
 @mcp.tool()
@@ -151,7 +151,7 @@ A client finds each kind with its own pair of methods: `tools/list` and `tools/c
 - **Response:** It carries the same `id`, plus either a `result` or an `error`. The `id` is how the client matches each answer to its question.
 - **Notification:** It has a `method` but no `id`. It's a one-way message, and nobody replies.
 
-Below is a real conversation with the Part 2 calculator server (one tool, `add`) over stdio, using the SDK in this repo (mcp 1.27.0). The server's replies are exactly what came back, spaced out for reading.
+Below is a real conversation with the Part 2 calculator server (one tool, `add`) over stdio, using the SDK in this repo (mcp 2.3.0). The server's replies are exactly what came back, spaced out for reading.
 
 <pre style="font-size: 0.85em; line-height: 1.35; white-space: pre; overflow-x: auto;">
  client                                         server
@@ -183,19 +183,18 @@ The server answers with the same `id`:
   "result": {
     "protocolVersion": "2025-11-25",
     "capabilities": {
-      "experimental": {},
       "prompts": {"listChanged": false},
       "resources": {"subscribe": false, "listChanged": false},
       "tools": {"listChanged": false}
     },
-    "serverInfo": {"name": "Calculator", "version": "1.27.0"}
+    "serverInfo": {"name": "Calculator", "version": ""}
   }
 }
 ```
 
 - `protocolVersion` is the version of the MCP spec both sides agree on. Versions are named by their release date.
-- `capabilities` lists what the server supports. FastMCP always lists tools, resources and prompts, even when it has only a tool.
-- `serverInfo` names the server. Its version is the SDK's, because the code didn't set one.
+- `capabilities` lists what the server supports. MCPServer always lists tools, resources and prompts, even when it has only a tool.
+- `serverInfo` names the server. Its version is empty, because the code didn't set one.
 
 **Step 2. "I'm ready."** The client sends a notification. It has no `id`, so the server doesn't reply:
 
@@ -229,7 +228,7 @@ The server answers with the same `id`:
 }
 ```
 
-`inputSchema` has the same shape as the `parameters` you wrote by hand for `get_weather`. FastMCP built it from `a: int, b: int`. The real reply also has an `outputSchema`, the shape of the result, which is left out here.
+`inputSchema` has the same shape as the `parameters` you wrote by hand for `get_weather`. MCPServer built it from `a: int, b: int`. The real reply also has an `outputSchema`, the shape of the result, which is left out here.
 
 **Step 4. "Call add with 2 and 3."** The client sends:
 
@@ -254,9 +253,9 @@ The server runs `add(2, 3)` and answers:
 
 - `content` is the result as text. This is what goes back to the model.
 - `structuredContent` is the same result as typed JSON, matching the `outputSchema`.
-- `isError` says whether the tool failed. A failing tool still sends a normal result, with `isError: true` and the error message as text, so the model can read what went wrong and react.
+- `isError` says whether the tool failed. A failing tool still sends a normal result, with `isError: true` and a short text, like `Error executing tool add`, so the model knows the call failed. The real cause stays in the server's log (appendix B.4).
 
-**The newest spec drops the handshake.** The conversation above follows protocol version 2025-11-25, which is what mcp 1.27.0 speaks. The newest version, 2026-07-28, makes MCP stateless: There's no `initialize` step any more. Every request carries its own protocol version and client capabilities, and a new `server/discover` method lets a client ask for the server's versions and features up front. The newer SDK (mcp 2.x) speaks it and falls back to the handshake for older servers. Listing and calling tools work the same way. The appendix at the end of this file covers every change, for after you've finished the course.
+**The newest spec drops the handshake.** The conversation above follows protocol version 2025-11-25. It's what this course's clients speak: They connect with `ClientSession`, which still opens with this handshake in mcp 2.x. The newest version, 2026-07-28, makes MCP stateless: There's no `initialize` step any more. Every request carries its own protocol version and client capabilities, and a new `server/discover` method lets a client ask for the server's versions and features up front. mcp 2.x speaks both: Its servers still answer the handshake, and its new `Client` asks with `server/discover` first and falls back to the handshake for older servers. Listing and calling tools work the same way. The appendix at the end of this file covers every change, for after you've finished the course.
 
 ---
 
@@ -264,7 +263,7 @@ The server runs `add(2, 3)` and answers:
 
 **A transport is how the JSON messages physically get from client to server.** The messages are the same on every transport. Only the delivery changes. In USB terms: The same device could connect by cable or over Wi-Fi, and what it says doesn't change.
 
-**stdio (standard input/output): For a server on the same machine.** The client starts the server as a child process, writes requests to the server's stdin and reads replies from its stdout, one JSON message per line. There's no network and no port. Claude Desktop and Claude Code run local servers this way. One rule follows from it: The server must never `print()` ordinary text to stdout, because the client would read it as a broken message. Logs go to stderr. In the run above, the server's log lines ("Processing request of type ListToolsRequest") went to stderr.
+**stdio (standard input/output): For a server on the same machine.** The client starts the server as a child process, writes requests to the server's stdin and reads replies from its stdout, one JSON message per line. There's no network and no port. Claude Desktop and Claude Code run local servers this way. One rule follows from it: The server must never `print()` ordinary text to stdout, because the client would read it as a broken message. Logs go to stderr. In the run above, the server's startup line went to stderr.
 
 **Streamable HTTP: For a server reached over a network.** The server runs as a web app with one endpoint, `/mcp`. The client sends each message as an HTTP POST. The server answers with plain JSON, or with a stream of events when it has several things to send (progress updates, then the result). One server can serve many clients, and it can run in Docker or in the cloud. This is the current standard for remote servers.
 
@@ -291,7 +290,7 @@ Why Streamable HTTP replaced SSE:
 - **No connection that has to stay open.** With SSE, every client held a long-lived connection to the server. Streamable HTTP is ordinary request and reply, so it works behind load balancers and on serverless platforms.
 - **It can be stateless.** Any copy of the server can answer any request, so you can run several copies to handle more traffic.
 
-If you know FastAPI, a Streamable HTTP server will feel familiar. FastMCP builds a Starlette web app (Starlette is the library FastAPI is built on) with one route, `/mcp`, and runs it with uvicorn.
+If you know FastAPI, a Streamable HTTP server will feel familiar. MCPServer builds a Starlette web app (Starlette is the library FastAPI is built on) with one route, `/mcp`, and runs it with uvicorn.
 
 Which one to use:
 
@@ -305,7 +304,7 @@ Which one to use:
 
 **The key point:** The LLM never speaks MCP. MCP connects the host to its servers. The host still talks to the model with ordinary function calling.
 
-Part 3 of this course builds exactly this. Its client asks the server for its tools, rewrites each one into OpenAI's tool format (the name, the description, and `inputSchema` placed under `parameters`), and then runs the usual function-calling loop. The only difference is that a tool call goes to the server instead of to a local function:
+Part 3 of this course builds exactly this. Its client asks the server for its tools, rewrites each one into OpenAI's tool format (the name, the description, and the input schema placed under `parameters`), and then runs the usual function-calling loop. The only difference is that a tool call goes to the server instead of to a local function:
 
 <pre style="font-size: 0.85em; line-height: 1.35; white-space: pre; overflow-x: auto;">
  MCP server           host (your app)            OpenAI model
@@ -369,7 +368,7 @@ An MCP server can run code and read data, and whatever it sends goes straight in
 
 ## The rest of this course
 
-- **Part 2:** A calculator server with FastMCP, and clients for stdio, Streamable HTTP and SSE. It's the only part with all three transports: The stdio client starts the server itself as its child process, and for the other two you start the server in a terminal and the client reaches it at `127.0.0.1:8050`.
+- **Part 2:** A calculator server with MCPServer, and clients for stdio, Streamable HTTP and SSE. It's the only part with all three transports: The stdio client starts the server itself as its child process, and for the other two you start the server in a terminal and the client reaches it at `127.0.0.1:8050`.
 - **Part 3:** A host that connects an OpenAI model to an MCP server (the loop in section 8). Over stdio: The host starts the server as its child process.
 - **Part 4:** MCP and plain function calling, side by side. The MCP side runs over stdio.
 - **Part 5:** Running the server in Docker. Over Streamable HTTP: The server runs in a container on your laptop, and the client reaches it at `127.0.0.1:8050`.
@@ -387,7 +386,7 @@ So every server here runs on your laptop, in one of two setups: stdio, with the 
 
 ## Appendix: What changes in mcp 2.x and the 2026-07-28 spec
 
-> **Read this last.** Come back to it only after you've learned MCP from this file and worked through the whole folder (Parts 2 to 6). Everything above, and all the course code, uses mcp 1.27.0, which speaks protocol 2025-11-25.
+> **Read this last.** Come back to it only after you've learned MCP from this file and worked through the whole folder (Parts 2 to 6). The course code now runs on mcp 2.3.0. Its clients still open with the handshake of protocol 2025-11-25, which is why sections 1 to 10 show it. Part D says what the move from mcp 1.27.0 changed in this folder.
 
 Two separate things changed, and it helps to keep them apart:
 
@@ -396,7 +395,7 @@ Two separate things changed, and it helps to keep them apart:
 
 In USB terms: The protocol is the USB standard itself, and the SDK is the driver on your laptop. A new standard changes what travels down the cable. A new driver changes the code you write to use it.
 
-Every output below comes from a real run, with mcp 1.27.0 in `MCP_env` and mcp 2.3.0 in a separate test environment, both on Python 3.12.
+Every output below comes from a real run, with mcp 1.27.0 and mcp 2.3.0, each in its own environment, both on Python 3.12.
 
 ### A. The protocol: What changed on the wire
 
@@ -625,7 +624,7 @@ The decorators `@mcp.tool()`, `@mcp.resource()` and `@mcp.prompt()` stay the sam
 ModuleNotFoundError: No module named 'mcp.server.fastmcp'. This is mcp 2.x, where FastMCP was renamed to MCPServer (from mcp.server.mcpserver import MCPServer) and other APIs changed; see the migration guide at https://py.sdk.modelcontextprotocol.io/v2/migration/#fastmcp-renamed-to-mcpserver or pin 'mcp<2' to keep running v1 code.
 ```
 
-That's why every server in this course would break on 2.x at its first line.
+That's why every server in this course had to change its first lines when the course moved to 2.x.
 
 #### B.2 The client: One `Client` instead of three steps
 
@@ -745,6 +744,9 @@ True Error executing tool divide: b must not be zero
 - **The HTTP library:** The SDK uses `httpx2` instead of `httpx`.
 - **Timeouts:** They're plain seconds (`read_timeout_seconds=30.0`) instead of `timedelta(seconds=30)`.
 - **The error class:** `McpError` (imported from `mcp.shared.exceptions`) became `MCPError` (imported from `mcp`).
+- **`streamable_http_client`:** It gives back two streams, `read` and `write`. The function that returned the session ID is gone, so the ID only shows in the server's log.
+- **Plain `def` tools run in a worker thread:** An object that works only in the thread that created it, like a SQLite connection opened in a lifespan, then needs `check_same_thread=False` (Part 6).
+- **No per-request log line:** The server no longer prints "Processing request of type ..." for each request.
 
 ### C. Mixing old and new
 
@@ -764,7 +766,7 @@ The `_meta` and `initialize` params are shortened here with `...`. The server's 
 
 ### D. What this means for you
 
-- This course stays on mcp 1.27.0. On 2.x, every server and client here would need the changes in Part B.
+- This course now runs on mcp 2.3.0, with the smallest changes that work: Every server uses `MCPServer` (B.1), and the clients use the snake_case names (B.3). The clients still connect with `ClientSession` and the handshake, not the new `Client` (B.2). That works because a 2.x server still answers the handshake (Part C).
 - The ideas from sections 1 to 10 don't change: Host, client and server, tools, resources and prompts, JSON-RPC, and the transports. What changed is how a conversation starts, and that the server no longer has to remember anything between requests.
 
-> "I built with the 1.x Python SDK, which speaks protocol 2025-11-25, where a client opens with an initialize handshake. The newest spec, 2026-07-28, makes MCP stateless: There's no handshake and no session, every request carries its version and capabilities in `_meta`, and `server/discover` tells a client what a server supports. That lets any copy of a server answer any request. The 2.x SDK speaks it, renames FastMCP to MCPServer, and still falls back to the handshake for old servers."
+> "I first built with the 1.x Python SDK, then moved everything to 2.x. My clients still open with the initialize handshake of protocol 2025-11-25, which a 2.x server still answers. The newest spec, 2026-07-28, makes MCP stateless: There's no handshake and no session, every request carries its version and capabilities in `_meta`, and `server/discover` tells a client what a server supports. That lets any copy of a server answer any request. The 2.x SDK speaks it, renames FastMCP to MCPServer, and still falls back to the handshake for old servers."

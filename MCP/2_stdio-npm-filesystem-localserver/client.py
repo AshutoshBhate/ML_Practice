@@ -45,7 +45,7 @@ async def main():
                 print(result.content[0].text)
 
                 result = await session.call_tool("read_text_file", {"path": outside_path})
-                print(result.isError)
+                print(result.is_error)
                 print(result.content[0].text)
 
 

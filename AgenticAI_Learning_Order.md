@@ -51,10 +51,10 @@ MCP comes right after Phase 1 because it only builds on function calling. It doe
 19. **Running a server in Docker:** [docker.ipynb](MCP/1_crash-course/5-run-with-docker/docker.ipynb). The calculator server in a container over Streamable HTTP, with its `Dockerfile` and a client.
 20. **Lifecycle:** [lifecycle.ipynb](MCP/1_crash-course/6-lifecycle-management/lifecycle.ipynb). How servers and clients start up, run and shut down, with a lifespan that opens and closes a database.
 21. **A real client:** [client.ipynb](MCP/2_stdio-npm-filesystem-localserver/client.ipynb). Starts the official Node.js filesystem server with `npx` over STDIO, then writes, reads, moves and searches files in a sandbox folder, and shows the server refusing a path outside it.
-22. **A server from a tutorial:** [Implementation_Details.ipynb](MCP/3_projects/youtube/Implementation_Details.ipynb), then [README.md](MCP/3_projects/youtube/README.md). A `FastMCP` server with one `get_transcript` tool, rewritten from a tutorial and run over stdio with a Python client. The README shows how to add it to Claude Code or Claude Desktop.
+22. **A server from a tutorial:** [Implementation_Details.ipynb](MCP/3_projects/youtube/Implementation_Details.ipynb), then [README.md](MCP/3_projects/youtube/README.md). An `MCPServer` server with one `get_transcript` tool, rewritten from a tutorial and run over stdio with a Python client. The README shows how to add it to Claude Code or Claude Desktop.
 23. **Your own server, end to end:** [Server_Implementation_Details.ipynb](MCP/3_projects/timezone/Server_Implementation_Details.ipynb), then [Client_Implementation_Details.ipynb](MCP/3_projects/timezone/Client_Implementation_Details.ipynb). A time zone server with one tool (`convert_time`), one resource (`zones://offices`) and one prompt (`plan_meeting`) over Streamable HTTP, run locally and in Docker. The client connects it to an OpenAI model with a tool loop, and `probe.py` checks it with the raw JSON-RPC handshake.
 
-After Phase 3 you can explain: Host, client and server, the three transports, tools vs resources vs prompts and who controls each, building a server with FastMCP, MCP versus function calling, and running a server in Docker.
+After Phase 3 you can explain: Host, client and server, the three transports, tools vs resources vs prompts and who controls each, building a server with MCPServer (FastMCP before SDK version 2), MCP versus function calling, and running a server in Docker.
 
 ---
 
@@ -148,7 +148,7 @@ Tick each one once you can explain it out loud without looking.
 **MCP**
 - [ ] What MCP is and how it differs from function calling ([4-mcp-vs-function-calling/](MCP/1_crash-course/4-mcp-vs-function-calling/))
 - [ ] Host, client, server and the three transports ([1-understanding-mcp/README.md](MCP/1_crash-course/1-understanding-mcp/README.md))
-- [ ] Building a server with FastMCP, with a tool, a resource and a prompt ([3_projects/timezone/server.py](MCP/3_projects/timezone/server.py))
+- [ ] Building a server with MCPServer, with a tool, a resource and a prompt ([3_projects/timezone/server.py](MCP/3_projects/timezone/server.py))
 - [ ] The raw handshake on the wire: initialize, notifications/initialized, tools/list ([probe.py](MCP/3_projects/timezone/probe.py))
 
 **LangGraph**

@@ -24,7 +24,7 @@ async def get_mcp_tools(session):
                 "function": {
                     "name": tool.name,
                     "description": tool.description,
-                    "parameters": tool.inputSchema,
+                    "parameters": tool.input_schema,
                 },
             }
         )
@@ -56,7 +56,7 @@ async def run_conversation(session, messages, tools):
 
 
 async def main():
-    async with streamable_http_client(url) as (read, write, get_session_id):
+    async with streamable_http_client(url) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
 

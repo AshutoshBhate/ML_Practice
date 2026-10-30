@@ -24,7 +24,7 @@ async def get_mcp_tools(session):
                 "function": {
                     "name": tool.name,
                     "description": tool.description,
-                    "parameters": tool.inputSchema,
+                    "parameters": tool.input_schema,
                 },
             }
         )
