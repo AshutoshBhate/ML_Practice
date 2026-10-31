@@ -3,18 +3,16 @@ import config
 
 class Teacher:
     def __init__(self):
-        self.cliff_row = 3
-        self.cliff_cols = range(1, 11)
+        self.fall_reward = -100
         self.goal_pos = (3, 11)
 
     def _evaluate_segment(self, segment):
         for step in segment:
-            obs = step['obs']
-            col = int(round(obs[0] * (config.GRID_W - 1)))
-            row = int(round(obs[1] * (config.GRID_H - 1)))
-
-            if row == self.cliff_row and col in self.cliff_cols:
+            if step['original_reward'] == self.fall_reward:
                 return -100.0
+
+        if segment[-1]['terminated']:
+            return 0.0
 
         final_obs = segment[-1]['obs']
         final_col = int(round(final_obs[0] * (config.GRID_W - 1)))

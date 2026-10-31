@@ -3,21 +3,16 @@ import config
 
 class CliffWalkingTranslator:
     def __init__(self):
-        self.cliff_row = 3
-        self.cliff_cols = range(1, 11)
+        self.fall_reward = -100
         self.goal_pos = (3, 11)
-    
+
     def translate(self, segment):
         log = set()
-        
+
         for step in segment:
-            obs = step['obs']
-            col = int(round(obs[0] * (config.GRID_W - 1)))
-            row = int(round(obs[1] * (config.GRID_H - 1)))
-            
-            if row == self.cliff_row and col in self.cliff_cols:
+            if step['original_reward'] == self.fall_reward:
                 log.add("CRITICAL_FAILURE")
-            elif (row, col) == self.goal_pos:
+            elif step['terminated']:
                 log.add("TASK_COMPLETE")
 
         if len(segment) > 0:
