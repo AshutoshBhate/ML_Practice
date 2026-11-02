@@ -95,9 +95,9 @@ Goal: Build the basic RAG pipeline, put it inside an agent, and serve it as an A
 34. **The full basic pipeline:** [RAG_1-4_Indexing_Retrieval_Generation.ipynb](<RAG/Tutorial (Lance Martin)/RAG_1-4_Indexing_Retrieval_Generation.ipynb>). Load, split (`RecursiveCharacterTextSplitter`), embed (`OpenAIEmbeddings`), store (Qdrant), retrieve, generate, and LCEL (the `|` syntax that chains the steps).
 35. **RAG inside an agent:** [Agent_V_RAG.py](<LangGraph/Tutorial (Vaibhav Mehra)/2_Agents/Agent_V_RAG.py>). The Phase 5 agent loop with a retriever tool over a PDF stored in Chroma. Here the tools run by hand through `tools_dict` instead of `ToolNode`.
 36. **Mini project, full pipeline:** [Notebook.ipynb](RAG/My_Codes/Naive_RAG_Notebook/Notebook.ipynb). `WebBaseLoader`, splitting by tiktoken tokens, Qdrant as the vector store, and an LCEL chain.
-37. **Naive RAG as an API:** [Naive_RAG/pydantic_models.py](RAG/My_Codes/Naive_RAG/pydantic_models.py), then [rag.py](RAG/My_Codes/Naive_RAG/rag.py), then [main.py](RAG/My_Codes/Naive_RAG/main.py). The mini project's notebook turned into a service: a `NaiveRAG` class builds the Qdrant store when the app starts, and `POST /ask` answers questions.
+37. **Naive RAG as an API:** [Naive_RAG/pydantic_models.py](RAG/My_Codes/Naive_RAG/pydantic_models.py), then [rag.py](RAG/My_Codes/Naive_RAG/rag.py), then [main.py](RAG/My_Codes/Naive_RAG/main.py). The mini project's notebook turned into a service: A `NaiveRAG` class builds the Qdrant store when the app starts, and `POST /ask` answers questions.
 
-After Phase 6 you can explain: Every stage of the pipeline, how to put retrieval inside an agent, and how to serve RAG with FastAPI. You can also say what naive RAG lacks: nothing checks whether the retrieved documents are any good.
+After Phase 6 you can explain: Every stage of the pipeline, how to put retrieval inside an agent, and how to serve RAG with FastAPI. You can also say what naive RAG lacks: Nothing checks whether the retrieved documents are any good.
 
 ---
 
@@ -110,7 +110,7 @@ Goal: Know the techniques that fix naive RAG, and build Self-RAG with LangGraph.
 40. **Better indexes:** [RAG_12-14 Indexing](<RAG/Tutorial (Lance Martin)/RAG_12-14_(Indexing)_Multi-RepresentationIndexing_RAPTOR_ColBERT.ipynb>). Multi-representation indexing, RAPTOR (explained, with no code) and ColBERT. The ColBERT cells didn't run, so the notebook falls back to a normal retriever there.
 41. **Better retrieval and generation:** [RAG_15-18 Retrieval and Generation](<RAG/Tutorial (Lance Martin)/RAG_15-18_(Retrieval_Generation)_Retrieval_Re-Ranking_Generation.ipynb>). RAG-Fusion again, Cohere re-ranking, and links to LangChain's CRAG and Self-RAG notebooks and to a talk on the impact of long context. Self-RAG is built for real in item 43.
 42. **The concept diagrams:** [Tutorial (Lance Martin)/Images/](<RAG/Tutorial (Lance Martin)/Images/>). Seventeen diagrams, one per technique. Use them as your mental models for interviews.
-43. **Self-RAG as an API (your most important file):** [Self_RAG/pydantic_models.py](RAG/My_Codes/Self_RAG/pydantic_models.py), then [rag.py](RAG/My_Codes/Self_RAG/rag.py), then [main.py](RAG/My_Codes/Self_RAG/main.py). An `AdvancedSelfRAG` LangGraph graph: retrieve, grade the documents one at a time with the `GradeDocuments` structured output until one is relevant, then either generate or rewrite the question and retrieve again. A `rewrite_count` in the state caps the retries. It matches the Bitwise internship bullet point.
+43. **Self-RAG as an API (your most important file):** [Self_RAG/pydantic_models.py](RAG/My_Codes/Self_RAG/pydantic_models.py), then [rag.py](RAG/My_Codes/Self_RAG/rag.py), then [main.py](RAG/My_Codes/Self_RAG/main.py). An `AdvancedSelfRAG` LangGraph graph: Retrieve, grade the documents one at a time with the `GradeDocuments` structured output until one is relevant, then either generate or rewrite the question and retrieve again. A `rewrite_count` in the state caps the retries. It matches the Bitwise internship bullet point.
 
 After Phase 7 you can explain: Five query-translation techniques, routing, RAPTOR and ColBERT, re-ranking, CRAG and Self-RAG, and how the Self-RAG API fixes naive RAG.
 
@@ -128,7 +128,7 @@ Goal: Understand preference-based RL, reward models and the Bradley-Terry model.
 49. **Swapping in the learned reward:** [environment.py](Reinforcement_Learning/Bitwise_Work/CartPole-v1/environment.py). `PbRLWrapper` replaces CartPole's own reward with the reward model's prediction and logs every step to the buffer.
 50. **The whole loop:** [main.ipynb](Reinforcement_Learning/Bitwise_Work/CartPole-v1/main.ipynb). Train PPO on the learned reward, collect trajectory pairs, have the critic label them, update the reward model, and repeat. Then [watch.ipynb](Reinforcement_Learning/Bitwise_Work/CartPole-v1/watch.ipynb) to see the trained agent play.
 51. **Score-based teacher:** [CliffWalking-v1/MLP/](Reinforcement_Learning/Bitwise_Work/CliffWalking-v1/MLP/). The same pipeline on CliffWalking. `teacher.py` gives each segment a number (−100 if it falls off the cliff, otherwise minus its distance to the goal) and prefers the higher one.
-52. **Rule-based teacher:** [NonHardcoded_MLP/](Reinforcement_Learning/Bitwise_Work/CliffWalking-v1/NonHardcoded_MLP/). `teacher.py` first turns each segment into events (fell off the cliff, reached the goal, moved closer, moved away), then compares them by priority: not dying first, then reaching the goal, then making progress.
+52. **Rule-based teacher:** [NonHardcoded_MLP/](Reinforcement_Learning/Bitwise_Work/CliffWalking-v1/NonHardcoded_MLP/). `teacher.py` first turns each segment into events (fell off the cliff, reached the goal, moved closer, moved away), then compares them by priority: Not dying first, then reaching the goal, then making progress.
 53. **A non-neural reward model:** [Random_Forest/](Reinforcement_Learning/Bitwise_Work/CliffWalking-v1/Random_Forest/). `reward_model.py` uses scikit-learn's `RandomForestRegressor` instead of a neural network, to compare classic ML with deep learning for reward models.
 
 All three CliffWalking folders share the same files: `config.py`, `buffer.py`, `reward_model.py`, `teacher.py`, `train_rm.py`, `wrappers.py`, `main.ipynb` and `watch.ipynb`.
@@ -157,9 +157,9 @@ Tick each one once you can explain it out loud without looking.
 - [ ] The ReAct pattern, `bind_tools()` and `ToolNode` ([Agent_III_ReActAgent.py](<LangGraph/Tutorial (Vaibhav Mehra)/2_Agents/Agent_III_ReActAgent.py>))
 
 **RAG**
-- [ ] What RAG is, and the pipeline: load, split, embed, store, retrieve, generate ([RAG_1-4](<RAG/Tutorial (Lance Martin)/RAG_1-4_Indexing_Retrieval_Generation.ipynb>))
+- [ ] What RAG is, and the pipeline: Load, split, embed, store, retrieve, generate ([RAG_1-4](<RAG/Tutorial (Lance Martin)/RAG_1-4_Indexing_Retrieval_Generation.ipynb>))
 - [ ] Multi-Query, RAG-Fusion and HyDE ([RAG_5-9](<RAG/Tutorial (Lance Martin)/RAG_5-9_(QueryTranslation)_MultiQueryTranslation_RAG-Fusion_Decompostion.ipynb>))
-- [ ] Self-RAG: grading documents and rewriting the question in a loop ([Self_RAG/rag.py](RAG/My_Codes/Self_RAG/rag.py))
+- [ ] Self-RAG: Grading documents and rewriting the question in a loop ([Self_RAG/rag.py](RAG/My_Codes/Self_RAG/rag.py))
 
 **RL**
 - [ ] What preference-based RL is ([CartPole-v1/](Reinforcement_Learning/Bitwise_Work/CartPole-v1/))
