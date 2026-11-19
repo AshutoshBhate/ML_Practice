@@ -2,7 +2,7 @@
 
 This is the order to study everything in `ML_Practice/` for the Agentic AI side of your resume: OpenAI API calls, agentic workflow patterns, MCP, LangGraph, RAG and preference-based RL. Each step uses only what earlier steps taught, so nothing appears before it's explained.
 
-Where a step has notebooks, read the notebook instead of the bare `.py` file. A **Supplement** notebook is the same code with short explanations. An **Exhaustive** notebook holds the deep-dive notes.
+Where a step has notebooks, read the notebook instead of the bare `.py` file. A **Supplement** notebook is the same code with short explanations.
 
 ---
 
@@ -11,11 +11,11 @@ Where a step has notebooks, read the notebook instead of the bare `.py` file. A 
 Goal: Call an LLM, get structured output back, and let it use tools.
 
 1. **Basic API call:** [Supplement_openai_api_example.ipynb](LLM_Learning_Sandbox/1_Simple_OpenAI_Example/Supplement_openai_api_example.ipynb). How `client.chat.completions.create()` works, what the `system` and `user` roles do, and where the answer sits in the response (`completion.choices[0].message.content`).
-2. **The same call, cleaner:** [Supplement_1-basic.ipynb](LLM_Learning_Sandbox/2_Workflow_Patterns_Course/1-introduction/Supplement_1-basic.ipynb), then [Exhaustive_1-basic.ipynb](LLM_Learning_Sandbox/2_Workflow_Patterns_Course/1-introduction/Exhaustive_1-basic.ipynb).
-3. **Structured output:** [Supplement_2-structured.ipynb](LLM_Learning_Sandbox/2_Workflow_Patterns_Course/1-introduction/Supplement_2-structured.ipynb), then [Exhaustive_2-structured.ipynb](LLM_Learning_Sandbox/2_Workflow_Patterns_Course/1-introduction/Exhaustive_2-structured.ipynb). `chat.completions.parse()` with a Pydantic class (`CalendarEvent`), so the reply comes back as a typed object instead of free text.
-4. **Function calling:** [Supplement_3-tools.ipynb](LLM_Learning_Sandbox/2_Workflow_Patterns_Course/1-introduction/Supplement_3-tools.ipynb), then [Exhaustive_3-tools.ipynb](LLM_Learning_Sandbox/2_Workflow_Patterns_Course/1-introduction/Exhaustive_3-tools.ipynb). You describe a `get_weather` tool, the model asks to call it, your code runs it, and the result goes back to the model for the final answer.
+2. **The same call, cleaner:** [Supplement_1-basic.ipynb](LLM_Learning_Sandbox/2_Workflow_Patterns_Course/1-introduction/Supplement_1-basic.ipynb).
+3. **Structured output:** [Supplement_2-structured.ipynb](LLM_Learning_Sandbox/2_Workflow_Patterns_Course/1-introduction/Supplement_2-structured.ipynb). `chat.completions.parse()` with a Pydantic class (`CalendarEvent`), so the reply comes back as a typed object instead of free text.
+4. **Function calling:** [Supplement_3-tools.ipynb](LLM_Learning_Sandbox/2_Workflow_Patterns_Course/1-introduction/Supplement_3-tools.ipynb). You describe a `get_weather` tool, the model asks to call it, your code runs it, and the result goes back to the model for the final answer.
 5. **Function calling on your own files:** [LocalFileSystem_Interaction.ipynb](LLM_Learning_Sandbox/3_FileSystem_Agent/LocalFileSystem_Interaction.ipynb). The same loop with file-reading and file-writing tools. Note that the model only *chooses* the function. Your code is what runs it.
-6. **Retrieval as a tool:** [Supplement_4-retrieval.ipynb](LLM_Learning_Sandbox/2_Workflow_Patterns_Course/1-introduction/Supplement_4-retrieval.ipynb), then [Exhaustive_4-retrieval.ipynb](LLM_Learning_Sandbox/2_Workflow_Patterns_Course/1-introduction/Exhaustive_4-retrieval.ipynb). A `search_kb` tool reads `kb.json`, and the model decides when to look something up. This is RAG in its smallest form.
+6. **Retrieval as a tool:** [Supplement_4-retrieval.ipynb](LLM_Learning_Sandbox/2_Workflow_Patterns_Course/1-introduction/Supplement_4-retrieval.ipynb). A `search_kb` tool reads `kb.json`, and the model decides when to look something up. This is RAG in its smallest form.
 
 After Phase 1 you can explain: Structured output, the tool-calling loop, and why retrieval matters.
 
