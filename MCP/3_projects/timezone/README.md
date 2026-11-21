@@ -12,10 +12,10 @@ My own MCP server, written with MCPServer from MCP's official Python SDK (mcp 2.
 
 ## Running it locally
 
-It runs in MCP_env. `client.py` also needs `OPENAI_API_KEY` in a `.env` file in this folder. Start the server in one terminal:
+It runs in Omega_env. `client.py` also needs `OPENAI_API_KEY` in a `.env` file in this folder. Start the server in one terminal:
 
 ```bash
-conda activate MCP_env
+conda activate Omega_env
 python server.py
 ```
 

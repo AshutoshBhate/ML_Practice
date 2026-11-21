@@ -1,5 +1,3 @@
-import numpy as np
-
 class AutomatedCritic:
     def judge(self, traj_A, traj_B):
         
@@ -11,8 +9,6 @@ class AutomatedCritic:
 
     def calculate_score(self, trajectory):
         
-        cart_positions = trajectory[:, 0]
-        
-        score = np.sum(cart_positions)
+        score = len(trajectory)
         
         return score

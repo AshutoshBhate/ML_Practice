@@ -19,15 +19,15 @@ Also in the `MCP` folder:
 
 ## Setup
 
-Everything runs in one conda environment, MCP_env, with Python 3.12:
+Everything runs in one conda environment, Omega_env, with Python 3.12:
 
 ```bash
-conda create -n MCP_env python=3.12
-conda activate MCP_env
+conda create -n Omega_env python=3.12
+conda activate Omega_env
 pip install -r requirements.txt
 ```
 
-`requirements.txt` pins mcp 2.3.0 and openai 2.32.0. Parts 3 and 4 call OpenAI, so they need `OPENAI_API_KEY` in `1_crash-course/.env`. Run each part's commands from that part's folder, and use the MCP_env kernel for the notebooks.
+`requirements.txt` pins mcp 2.3.0 and openai 2.32.0. Parts 3 and 4 call OpenAI, so they need `OPENAI_API_KEY` in `1_crash-course/.env`. Run each part's commands from that part's folder, and use the Omega_env kernel for the notebooks.
 
 A few parts need one more thing:
 

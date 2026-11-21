@@ -11,7 +11,7 @@ This folder has one MCP server, `server.py`, with one tool (`add`), and one clie
 
 ## Running it
 
-Run every command from this folder, with the environment active (`conda activate MCP_env`). The notebooks use the MCP_env kernel.
+Run every command from this folder, with the environment active (`conda activate Omega_env`). The notebooks use the Omega_env kernel.
 
 - **stdio:** `python client-stdio.py`. Nothing needs to be started first.
 - **Streamable HTTP:** Start `python server.py` in one terminal, then run `python client-streamable-http.py` in a second one.

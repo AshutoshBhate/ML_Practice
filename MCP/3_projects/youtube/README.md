@@ -9,10 +9,10 @@
 
 ## Running it
 
-It runs in MCP_env, which has `youtube-transcript-api==1.2.4`. From this folder:
+It runs in Omega_env, which has `youtube-transcript-api==1.2.4`. From this folder:
 
 ```bash
-conda activate MCP_env
+conda activate Omega_env
 python client.py
 ```
 
@@ -25,7 +25,7 @@ These steps aren't run here. Use full paths, because these hosts start the serve
 **Claude Code:**
 
 ```bash
-claude mcp add youtube -- C:\Users\ashut\anaconda3\envs\MCP_env\python.exe C:\Users\ashut\ML_Practice\MCP\3_projects\youtube\server.py
+claude mcp add youtube -- C:\Users\ashut\anaconda3\envs\Omega_env\python.exe C:\Users\ashut\ML_Practice\MCP\3_projects\youtube\server.py
 claude mcp list
 ```
 
@@ -35,7 +35,7 @@ claude mcp list
 {
   "mcpServers": {
     "youtube": {
-      "command": "C:\\Users\\ashut\\anaconda3\\envs\\MCP_env\\python.exe",
+      "command": "C:\\Users\\ashut\\anaconda3\\envs\\Omega_env\\python.exe",
       "args": ["C:\\Users\\ashut\\ML_Practice\\MCP\\3_projects\\youtube\\server.py"]
     }
   }

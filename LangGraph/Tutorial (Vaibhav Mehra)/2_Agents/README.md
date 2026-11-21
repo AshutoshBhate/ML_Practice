@@ -2,7 +2,7 @@
 
 Read the files in order, I to V. Each name is explained once, in the first file that uses it. Later files only cover what's new.
 
-All five use `gpt-4o-mini` and run in `RAG_env`. Run them with `python Agent_N_....py`. They ask for input in the terminal, and you type `exit` to stop (Agent III takes no input, and Agent IV ends when it saves).
+All five use `gpt-4o-mini` and run in `Omega_env`. Run them with `python Agent_N_....py`. They ask for input in the terminal, and you type `exit` to stop (Agent III takes no input, and Agent IV ends when it saves).
 
 ---
 

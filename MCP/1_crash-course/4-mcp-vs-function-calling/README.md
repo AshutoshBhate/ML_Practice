@@ -11,7 +11,7 @@ This folder answers "Calculate 25 + 17" twice, with the same `add` function from
 
 ## Running it
 
-Run from this folder, with the environment active (`conda activate MCP_env`):
+Run from this folder, with the environment active (`conda activate Omega_env`):
 
 ```bash
 python function-calling.py

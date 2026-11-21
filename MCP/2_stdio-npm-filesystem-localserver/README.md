@@ -14,7 +14,7 @@ npm only supplies the code. The server itself runs on your laptop, as a child of
 
 ## Running it
 
-You need Node.js. Version 2.0.1 of the server asks for Node 24, but it also runs on Node 20 with an npm warning. Run from this folder, with the environment active (`conda activate MCP_env`):
+You need Node.js. Version 2.0.1 of the server asks for Node 24, but it also runs on Node 20 with an npm warning. Run from this folder, with the environment active (`conda activate Omega_env`):
 
 ```bash
 python client.py

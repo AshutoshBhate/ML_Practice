@@ -7,7 +7,7 @@ This folder runs the Part 2 calculator server inside a Docker container, over St
 - **`server.py`:** The calculator server on Streamable HTTP. It listens on `0.0.0.0`, because inside a container `127.0.0.1` would make it unreachable from outside.
 - **`client.py`:** The Part 2 Streamable HTTP client, pointed at `http://127.0.0.1:8050/mcp`.
 - **`Dockerfile`:** Python 3.12 slim, the pinned requirements, then the server.
-- **`requirements.txt`:** `mcp==2.3.0`, the version in MCP_env.
+- **`requirements.txt`:** `mcp==2.3.0`, the version in Omega_env.
 
 ## Running it
 
@@ -24,7 +24,7 @@ This folder runs the Part 2 calculator server inside a Docker container, over St
    docker run --rm --name mcp-server -p 127.0.0.1:8050:8050 mcp-server
    ```
 
-4. In a second terminal, with MCP_env active, run the client:
+4. In a second terminal, with Omega_env active, run the client:
 
    ```bash
    python client.py

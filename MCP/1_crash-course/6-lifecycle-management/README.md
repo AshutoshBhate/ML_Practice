@@ -9,7 +9,7 @@ Every MCP connection goes through three phases: Initialization (the handshake), 
 
 ## Running it
 
-Run from this folder, with the environment active (`conda activate MCP_env`):
+Run from this folder, with the environment active (`conda activate Omega_env`):
 
 ```bash
 python client.py
